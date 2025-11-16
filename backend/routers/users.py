@@ -98,3 +98,22 @@ async def get_user_deposits(wallet: str = Query(..., description="Wallet address
         }
     ]
 
+
+# Additional endpoint for frontend compatibility
+@router.get("/{wallet_address}/deposit")
+async def get_user_deposit_amount(wallet_address: str):
+    """
+    Get user's total deposited amount (for frontend compatibility).
+    Returns just the depositedAmount value.
+    This endpoint matches the frontend's expected path: /api/users/{wallet}/deposit
+    """
+    # TODO: Replace with real database query
+    # For now, calculate from mock deposits
+    # In production, query database directly for total deposited amount
+    deposits_data = await get_user_deposits(wallet=wallet_address)
+    total_deposited = sum(deposit["amount"] for deposit in deposits_data) if deposits_data else 0.0
+    
+    return {
+        "depositedAmount": total_deposited
+    }
+

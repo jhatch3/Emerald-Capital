@@ -27,6 +27,8 @@ app.add_middleware(
 # Register routers
 app.include_router(vault.router, prefix="/api/vault", tags=["vault"])
 app.include_router(users.router, prefix="/api/user", tags=["user"])
+# Also register users router with /api/users for frontend compatibility
+app.include_router(users.router, prefix="/api/users", tags=["user"])
 app.include_router(positions.router, prefix="/api/positions", tags=["positions"])
 app.include_router(governance.router, prefix="/api/governance", tags=["governance"])
 app.include_router(agents.router, prefix="/api/agents", tags=["agents"])
