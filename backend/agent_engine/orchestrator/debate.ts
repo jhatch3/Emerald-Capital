@@ -93,7 +93,7 @@ Return a JSON array with exactly 5 objects, one for each agent:
       "direction": "YES" or "NO",
       "confidence": number 0-100,
       "size": number (position size in USD),
-      "reasoning": "string (updated reasoning that references debate)"
+      "reasoning": "string (EXACTLY 4 sentences - updated reasoning that references debate and incorporates other agents' insights)"
     }
   },
   {

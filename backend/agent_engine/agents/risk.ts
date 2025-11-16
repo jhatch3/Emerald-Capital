@@ -72,7 +72,7 @@ Based on your risk management approach, evaluate this trading opportunity. Consi
 
 IMPORTANT: Be conservative with position sizing. Reject if risk is too high, even if opportunity seems profitable.
 
-Return your decision as JSON with direction, confidence, size, and reasoning. Focus on risk metrics and capital preservation.`;
+Return your decision as JSON with direction, confidence, size, and reasoning. Your reasoning must be EXACTLY 4 sentences, each providing a distinct risk analysis point supporting your decision. Focus on risk metrics and capital preservation.`;
   }
 }
 

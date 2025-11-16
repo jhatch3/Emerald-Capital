@@ -66,7 +66,7 @@ Based on your fundamental analysis approach, evaluate this trading opportunity. 
 4. Long-term sustainability
 5. Market fundamentals
 
-Return your decision as JSON with direction, confidence, size, and reasoning.`;
+Return your decision as JSON with direction, confidence, size, and reasoning. Your reasoning must be EXACTLY 4 sentences, each providing a distinct fundamental analysis point supporting your decision.`;
   }
 }
 

@@ -63,7 +63,7 @@ Based on your sentiment analysis approach, evaluate this trading opportunity. Co
 5. Contrarian signals (if sentiment is extreme)
 6. Community engagement and influencer activity
 
-Return your decision as JSON with direction, confidence, size, and reasoning. Focus on sentiment and narrative factors.`;
+Return your decision as JSON with direction, confidence, size, and reasoning. Your reasoning must be EXACTLY 4 sentences, each providing a distinct sentiment analysis point supporting your decision. Focus on sentiment and narrative factors.`;
   }
 }
 
