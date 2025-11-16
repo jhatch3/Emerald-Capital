@@ -66,7 +66,7 @@ Based on your strategic analysis approach, evaluate this trading opportunity. Co
 6. Strategic timing and positioning
 7. Funding rates and derivatives pricing (if applicable)
 
-Return your decision as JSON with direction, confidence, size, and reasoning. Focus on market structure and strategic advantages.`;
+Return your decision as JSON with direction, confidence, size, and reasoning. Your reasoning must be EXACTLY 4 sentences, each providing a distinct strategic analysis point supporting your decision. Focus on market structure and strategic advantages.`;
   }
 
   private analyzeVolumeTrend(data: Array<{ date: string; price: number; volume: number }>): string {

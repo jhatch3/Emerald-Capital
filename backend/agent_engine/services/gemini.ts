@@ -3,15 +3,21 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 // Load environment variables
-// Try multiple possible .env file locations
-const envPaths = [
-  path.join(__dirname, '../../.env'),
-  path.join(__dirname, '../../../.env'),
-  path.join(process.cwd(), '.env'),
+// Try to find .env file in project root (where package.json typically is)
+// Check multiple possible locations
+const possiblePaths = [
+  // Root from __dirname (if running from backend/agent_engine/services)
+  path.resolve(__dirname, '../../../.env'),
+  // Root from current working directory (if running from backend/)
+  path.resolve(process.cwd(), '..', '.env'),
+  // Current working directory
+  path.resolve(process.cwd(), '.env'),
+  // Backend directory
+  path.resolve(__dirname, '../../.env'),
 ];
 
 let loadedPath = null;
-for (const envPath of envPaths) {
+for (const envPath of possiblePaths) {
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath });
     loadedPath = envPath;
@@ -21,7 +27,9 @@ for (const envPath of envPaths) {
 }
 
 if (!loadedPath) {
-  console.warn('[OpenRouter] No .env file found in any of the checked paths:', envPaths);
+  console.warn('[OpenRouter] No .env file found. Checked paths:', possiblePaths);
+  console.warn('[OpenRouter] Current working directory:', process.cwd());
+  console.warn('[OpenRouter] __dirname:', __dirname);
 }
 
 // OpenRouter API endpoint

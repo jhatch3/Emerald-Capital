@@ -66,7 +66,7 @@ Based on your quantitative analysis approach, evaluate this trading opportunity 
 4. Optimal position sizing
 5. Correlation with existing portfolio
 
-Return your decision as JSON with direction, confidence, size, and reasoning. Include specific numbers and calculations in your reasoning.`;
+Return your decision as JSON with direction, confidence, size, and reasoning. Your reasoning must be EXACTLY 4 sentences, each providing a distinct quantitative analysis point with specific numbers and calculations supporting your decision.`;
   }
 
   private calculateVolatility(prices: number[]): number {
