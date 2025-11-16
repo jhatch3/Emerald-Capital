@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { WalletConnectButton } from './WalletConnectButton';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { LayoutDashboard, FileText, Users, Building2, ArrowDown } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Building2, ArrowDown, Code } from 'lucide-react';
 import { Button } from './ui/button';
 
 export const Navbar = () => {
@@ -16,6 +16,7 @@ export const Navbar = () => {
     { path: '/vault', label: 'Vault', icon: Building2 },
     { path: '/governance', label: 'Governance', icon: FileText },
     { path: '/agents', label: 'Agents', icon: Users },
+    { path: '/dev', label: 'Dev', icon: Code },
   ];
 
   // Don't show full nav on landing page or if not opted in

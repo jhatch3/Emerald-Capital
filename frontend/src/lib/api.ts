@@ -693,3 +693,100 @@ export const fetchBalanceFromBackend = async (address: string): Promise<number> 
     throw new Error('Failed to fetch balance from backend');
   }
 };
+
+// ============================================================================
+// AGENT DECISION ENDPOINTS
+// ============================================================================
+
+export interface AgentDecisionRequest {
+  market?: {
+    symbol: string;
+    price: number;
+    volume24h?: number;
+    marketCap?: number;
+  };
+  data?: {
+    portfolio?: any;
+    marketData?: any;
+    historicalData?: any[];
+    sentiment?: any;
+  };
+}
+
+export interface AgentDecisionResponse {
+  status: 'ok' | 'error';
+  decision_id?: string;
+  investment_decision?: {
+    direction: 'YES' | 'NO';
+    size: number;
+    confidence: number;
+    summary: string;
+  };
+  agent_analysis?: Array<{
+    agent_name: string;
+    direction: 'YES' | 'NO';
+    confidence: number;
+    size: number;
+    reasoning: string;
+  }>;
+  conversation_logs?: {
+    initial_decisions?: any[];
+    debate_round?: any;
+    final_decisions?: any[];
+  };
+  market_info?: {
+    symbol?: string;
+    question?: string;
+    price?: number;
+    volume24h?: number;
+    marketCap?: number;
+  };
+  error?: string;
+}
+
+/**
+ * Trigger the agent decision pipeline
+ * If no market/data provided, the system will auto-select a market
+ */
+export const triggerAgentDecision = async (
+  request?: AgentDecisionRequest
+): Promise<AgentDecisionResponse> => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout for full pipeline
+    
+    // If no request provided, send null/empty to trigger auto market selection
+    // Backend will handle empty market/data for auto-selection
+    const requestBody = request || {
+      market: null,
+      data: null
+    };
+    
+    const response = await fetch(`${API_BASE_URL}/api/agents/decision`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout: Agent pipeline took too long to respond');
+      }
+      throw error;
+    }
+    throw new Error('Failed to trigger agent decision');
+  }
+};

@@ -12,6 +12,7 @@ import Deposit from "./pages/Deposit";
 import Vault from "./pages/Vault";
 import Governance from "./pages/Governance";
 import Agents from "./pages/Agents";
+import Dev from "./pages/Dev";
 import NotFound from "./pages/NotFound";
 import { useWalletContext } from "@/contexts/WalletContext";
 
@@ -77,6 +78,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Agents />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/dev" 
+                  element={
+                    <ProtectedRoute>
+                      <Dev />
                     </ProtectedRoute>
                   } 
                 />

@@ -15,29 +15,303 @@ import {
 } from '@/lib/api';
 import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 
+// Hardcoded default proposals - always displayed
+const DEFAULT_PROPOSALS: Proposal[] = [
+  {
+    id: "prop-default-001",
+    market: "Will Bitcoin reach $100,000 by end of Q1 2025?",
+    direction: "LONG",
+    positionSize: "$125,000",
+    riskScore: 6.5,
+    confidence: 78,
+    status: "APPROVED",
+    summary: "Strong technical indicators suggest Bitcoin is in a bullish consolidation phase. RSI at 65, volume increasing, and institutional accumulation patterns visible. The upcoming halving cycle and ETF inflows support a move toward $100k. Risk-adjusted position size accounts for volatility.",
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+    dataSources: ["https://polymarket.com/event/bitcoin-100k-q1-2025"],
+    betStatus: "OPEN",
+    vote: "YES"
+  },
+  {
+    id: "prop-default-002",
+    market: "Will Ethereum Layer 2 TVL exceed $50B by March 2025?",
+    direction: "LONG",
+    positionSize: "$95,000",
+    riskScore: 5.2,
+    confidence: 72,
+    status: "APPROVED",
+    summary: "Layer 2 ecosystems showing exponential growth with Arbitrum, Optimism, and Base leading adoption. Developer activity and user migration from mainnet accelerating. Fee reduction narrative driving institutional interest. Position sized conservatively given L2 token volatility.",
+    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
+    dataSources: ["https://polymarket.com/event/eth-l2-tvl-50b"],
+    betStatus: "OPEN",
+    vote: "YES"
+  },
+  {
+    id: "prop-default-003",
+    market: "Will Solana DeFi TVL drop below $1B in the next 30 days?",
+    direction: "SHORT",
+    positionSize: "$80,000",
+    riskScore: 4.8,
+    confidence: 68,
+    status: "REJECTED",
+    summary: "Sentiment analysis shows mixed signals. While there are concerns about network stability, the ecosystem is showing resilience. However, risk parameters suggest this position size is too aggressive given current market conditions. Conservative approach recommended.",
+    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8 hours ago
+    dataSources: ["https://polymarket.com/event/solana-defi-tvl-drop"],
+    betStatus: "OPEN",
+    vote: "NO"
+  },
+  {
+    id: "prop-default-004",
+    market: "Will AI token market cap exceed $100B by end of 2025?",
+    direction: "LONG",
+    positionSize: "$150,000",
+    riskScore: 7.2,
+    confidence: 65,
+    status: "PENDING",
+    summary: "AI narrative remains strong with major tech companies integrating blockchain AI solutions. However, regulatory uncertainty and high correlation with tech stocks create tail risk. Position requires careful risk management and monitoring of regulatory developments.",
+    timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
+    dataSources: ["https://polymarket.com/event/ai-tokens-100b-2025"],
+    betStatus: "OPEN",
+    vote: "YES"
+  },
+  {
+    id: "prop-default-005",
+    market: "Will USDC market cap exceed $50B by Q2 2025?",
+    direction: "LONG",
+    positionSize: "$110,000",
+    riskScore: 3.5,
+    confidence: 82,
+    status: "EXECUTED",
+    summary: "Stablecoin adoption accelerating with institutional demand for on-chain dollar exposure. USDC maintaining market share despite competition. Regulatory clarity improving. Low-risk, high-confidence position with strong fundamentals.",
+    timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(), // 12 hours ago
+    dataSources: ["https://polymarket.com/event/usdc-50b-q2-2025"],
+    betStatus: "OPEN",
+    vote: "YES"
+  }
+];
+
+// Hardcoded debate transcripts
+const DEFAULT_DEBATES: Record<string, DebateTranscript> = {
+  "prop-default-001": {
+    proposalId: "prop-default-001",
+    messages: [
+      {
+        agent: "Quant Agent",
+        message: "Technical analysis shows Bitcoin breaking above key resistance at $68k with strong volume confirmation. RSI at 65 indicates healthy momentum without overbought conditions. The 20-day MA has crossed above 50-day MA, forming a bullish pattern. Historical data suggests 78% probability of reaching $100k target within Q1 2025 timeframe. I vote YES.",
+        timestamp: "14:28:33",
+        vote: "YES"
+      },
+      {
+        agent: "Risk Agent",
+        message: "Portfolio heat is currently at 45%, so this $125k position would bring us to 62% - within our 75% threshold. Bitcoin correlation with existing positions is moderate at 0.65. Maximum drawdown scenario shows 2.8% portfolio impact if BTC drops 20%. Position sizing is appropriate. I approve with a stop-loss condition at $65k. I vote YES.",
+        timestamp: "14:29:15",
+        vote: "YES"
+      },
+      {
+        agent: "Fundamental Agent",
+        message: "ETF inflows continue to accelerate with $2.3B in net inflows this week. Institutional adoption metrics are strong. The upcoming halving in April creates supply shock dynamics. Regulatory clarity improving. Fundamental factors strongly support this position. I vote YES.",
+        timestamp: "14:30:02",
+        vote: "YES"
+      },
+      {
+        agent: "Sentiment Agent",
+        message: "Social sentiment is bullish at 68/100. Twitter mentions increasing, influencer activity positive. However, there's some FUD around regulatory concerns. Overall sentiment momentum is positive. I vote YES.",
+        timestamp: "14:30:45",
+        vote: "YES"
+      },
+      {
+        agent: "Strategist Agent",
+        message: "Market structure supports this trade. Options market shows put-call ratio of 0.58, indicating bullish bias. Funding rates positive. The arbitrage landscape is favorable. I vote YES.",
+        timestamp: "14:31:20",
+        vote: "YES"
+      }
+    ]
+  },
+  "prop-default-002": {
+    proposalId: "prop-default-002",
+    messages: [
+      {
+        agent: "Fundamental Agent",
+        message: "Layer 2 ecosystems showing 40% month-over-month growth. Developer activity on Arbitrum, Optimism, and Base is accelerating. User migration from mainnet Ethereum is increasing due to lower fees. Fundamental metrics strongly support L2 growth. I vote YES.",
+        timestamp: "11:15:30",
+        vote: "YES"
+      },
+      {
+        agent: "Quant Agent",
+        message: "TVL growth rate analysis shows exponential curve. Current TVL at $28B, growing at 15% monthly. Statistical projection suggests 72% probability of exceeding $50B by March. Technical indicators support continued growth. I vote YES.",
+        timestamp: "11:16:12",
+        vote: "YES"
+      },
+      {
+        agent: "Risk Agent",
+        message: "Position size is conservative at $95k. L2 tokens have higher volatility but this is accounted for in sizing. Correlation with mainnet ETH is 0.72, which is acceptable. Risk parameters are within limits. I vote YES.",
+        timestamp: "11:17:05",
+        vote: "YES"
+      },
+      {
+        agent: "Sentiment Agent",
+        message: "Community sentiment around L2s is very positive at 75/100. Developer community actively building. However, some concerns about token unlock schedules. Overall sentiment supports the trade. I vote YES.",
+        timestamp: "11:17:50",
+        vote: "YES"
+      },
+      {
+        agent: "Strategist Agent",
+        message: "L2 narrative is strong. Market structure shows increasing capital allocation to L2 ecosystems. The fee reduction narrative is compelling for institutional adoption. I vote YES.",
+        timestamp: "11:18:25",
+        vote: "YES"
+      }
+    ]
+  },
+  "prop-default-003": {
+    proposalId: "prop-default-003",
+    messages: [
+      {
+        agent: "Quant Agent",
+        message: "Current Solana DeFi TVL is $1.8B. Statistical analysis shows 35% probability of dropping below $1B in 30 days. While there are concerns, the probability is not high enough to justify a SHORT position. I vote NO.",
+        timestamp: "09:20:15",
+        vote: "NO"
+      },
+      {
+        agent: "Risk Agent",
+        message: "This SHORT position would increase portfolio risk. Solana ecosystem has shown resilience despite network issues. Position size of $80k is too aggressive for a low-probability trade. I vote NO.",
+        timestamp: "09:21:00",
+        vote: "NO"
+      },
+      {
+        agent: "Fundamental Agent",
+        message: "Solana ecosystem continues to attract developers. While there are network stability concerns, the fundamental value proposition remains strong. I vote NO.",
+        timestamp: "09:21:45",
+        vote: "NO"
+      },
+      {
+        agent: "Sentiment Agent",
+        message: "Sentiment is mixed at 48/100. Some negative sentiment around network issues, but community remains engaged. Not enough negative momentum to support SHORT. I vote NO.",
+        timestamp: "09:22:30",
+        vote: "NO"
+      },
+      {
+        agent: "Strategist Agent",
+        message: "Market structure doesn't support this SHORT. While there are risks, the ecosystem is showing resilience. I vote NO.",
+        timestamp: "09:23:15",
+        vote: "NO"
+      }
+    ]
+  },
+  "prop-default-004": {
+    proposalId: "prop-default-004",
+    messages: [
+      {
+        agent: "Fundamental Agent",
+        message: "AI narrative remains strong with major tech companies integrating blockchain AI. However, regulatory uncertainty creates headwinds. Fundamental factors are mixed. I vote YES but with caution.",
+        timestamp: "13:45:20",
+        vote: "YES"
+      },
+      {
+        agent: "Risk Agent",
+        message: "AI tokens have high correlation with tech stocks (0.85) and high volatility. This $150k position would push portfolio heat to 70%, close to our limit. Risk score of 7.2 is elevated. I recommend reducing position size or waiting for clearer signals. I vote NO.",
+        timestamp: "13:46:10",
+        vote: "NO"
+      },
+      {
+        agent: "Quant Agent",
+        message: "Statistical analysis shows 65% probability of reaching target. However, volatility is high. Technical indicators are mixed. I vote YES but position size should be reduced.",
+        timestamp: "13:47:00",
+        vote: "YES"
+      },
+      {
+        agent: "Sentiment Agent",
+        message: "AI narrative sentiment is strong at 72/100. Community excited about AI-blockchain integration. However, regulatory FUD is present. Overall sentiment supports the trade. I vote YES.",
+        timestamp: "13:47:45",
+        vote: "YES"
+      },
+      {
+        agent: "Strategist Agent",
+        message: "Market structure supports AI tokens, but regulatory risk is real. The trade has merit but requires careful risk management. I vote YES with reduced position size.",
+        timestamp: "13:48:30",
+        vote: "YES"
+      }
+    ]
+  },
+  "prop-default-005": {
+    proposalId: "prop-default-005",
+    messages: [
+      {
+        agent: "Fundamental Agent",
+        message: "Stablecoin adoption is accelerating. USDC maintaining market share with strong institutional demand. Regulatory clarity improving. Fundamental factors strongly support growth to $50B. I vote YES.",
+        timestamp: "08:30:15",
+        vote: "YES"
+      },
+      {
+        agent: "Quant Agent",
+        message: "USDC market cap currently at $32B, growing at steady 8% monthly rate. Statistical projection shows 82% probability of exceeding $50B by Q2 2025. Low volatility, high confidence trade. I vote YES.",
+        timestamp: "08:31:00",
+        vote: "YES"
+      },
+      {
+        agent: "Risk Agent",
+        message: "Stablecoin positions are low risk. USDC is well-regulated and trusted. Position size is appropriate. This is a high-confidence, low-risk trade. I vote YES.",
+        timestamp: "08:31:45",
+        vote: "YES"
+      },
+      {
+        agent: "Sentiment Agent",
+        message: "Stablecoin sentiment is neutral-positive. Community trusts USDC. No significant negative sentiment. I vote YES.",
+        timestamp: "08:32:30",
+        vote: "YES"
+      },
+      {
+        agent: "Strategist Agent",
+        message: "Market structure strongly supports stablecoin growth. Institutional demand for on-chain dollar exposure is increasing. This is a strategic position. I vote YES.",
+        timestamp: "08:33:15",
+        vote: "YES"
+      }
+    ]
+  }
+};
+
 const Governance = () => {
-  const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [proposalDebates, setProposalDebates] = useState<Record<string, DebateTranscript | null>>({});
-  const [loading, setLoading] = useState(true);
+  const [proposals, setProposals] = useState<Proposal[]>(DEFAULT_PROPOSALS);
+  const [proposalDebates, setProposalDebates] = useState<Record<string, DebateTranscript | null>>(DEFAULT_DEBATES);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
-      const proposalsData = await fetchProposals();
-      setProposals(proposalsData);
+      try {
+        const proposalsData = await fetchProposals();
+        // Merge API proposals with defaults (API takes priority if IDs match)
+        const mergedProposals = [...DEFAULT_PROPOSALS];
+        proposalsData.forEach(apiProposal => {
+          const existingIndex = mergedProposals.findIndex(p => p.id === apiProposal.id);
+          if (existingIndex >= 0) {
+            mergedProposals[existingIndex] = apiProposal;
+          } else {
+            mergedProposals.unshift(apiProposal); // Add new proposals at the top
+          }
+        });
+        setProposals(mergedProposals);
 
-      // Fetch debate transcript for each proposal
-      const debatePromises = proposalsData.map(async (proposal) => {
-        const debate = await fetchDebateTranscript(proposal.id);
-        return { proposalId: proposal.id, debate };
-      });
+        // Fetch debate transcripts (merge with defaults)
+        const debatePromises = mergedProposals.map(async (proposal) => {
+          try {
+            const debate = await fetchDebateTranscript(proposal.id);
+            return { proposalId: proposal.id, debate: debate || DEFAULT_DEBATES[proposal.id] || null };
+          } catch {
+            return { proposalId: proposal.id, debate: DEFAULT_DEBATES[proposal.id] || null };
+          }
+        });
 
-      const debateResults = await Promise.all(debatePromises);
-      const debateMap: Record<string, DebateTranscript | null> = {};
-      debateResults.forEach(({ proposalId, debate }) => {
-        debateMap[proposalId] = debate;
-      });
-      setProposalDebates(debateMap);
+        const debateResults = await Promise.all(debatePromises);
+        const debateMap: Record<string, DebateTranscript | null> = { ...DEFAULT_DEBATES };
+        debateResults.forEach(({ proposalId, debate }) => {
+          if (debate) {
+            debateMap[proposalId] = debate;
+          }
+        });
+        setProposalDebates(debateMap);
+      } catch (error) {
+        // If API fails, keep defaults
+        console.error('Error fetching proposals:', error);
+      }
       setLoading(false);
     };
 

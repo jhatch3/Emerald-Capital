@@ -1,26 +1,51 @@
-import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { AgentCard } from '@/components/agents/AgentCard';
-import { 
-  fetchAgents,
-  type AgentPersona
-} from '@/lib/api';
+
+// Agent personas - always available in frontend
+const AGENT_PERSONAS = [
+  {
+    id: "fundamental-agent",
+    name: "Fundamental Agent",
+    role: "Fundamental Analysis & Events",
+    avatar: "📈",
+    description: "Specializes in logical, factual, and event-based reasoning. Analyzes fundamentals, news events, partnerships, protocol upgrades, and ecosystem developments. Focuses on tokenomics, supply dynamics, user growth, transaction volume, and developer activity. Bases decisions on factual information and logical analysis, ignoring short-term price movements.",
+    specialty: "Fundamental Analysis"
+  },
+  {
+    id: "quant-agent",
+    name: "Quant Agent",
+    role: "Quantitative Analysis & Statistics",
+    avatar: "📊",
+    description: "Specializes in probability, statistics, and numerical analysis. Uses ONLY numerical data: prices, volumes, returns, volatility, correlations. Applies statistical models like mean reversion, momentum, and volatility clustering. Calculates probabilities and expected values. Uses technical indicators (RSI, MACD, Bollinger Bands) and analyzes volume profiles and market microstructure.",
+    specialty: "Quantitative Analysis"
+  },
+  {
+    id: "sentiment-agent",
+    name: "Sentiment Agent",
+    role: "Social Media & Narrative Analysis",
+    avatar: "📰",
+    description: "Specializes in social media narrative, momentum, and trend-driven analysis. Analyzes Twitter, Reddit, and Discord sentiment. Tracks narrative shifts, hype cycles, and momentum patterns. Monitors influencer activity, community engagement, and viral potential. Considers market psychology, FOMO/FUD dynamics, and contrarian signals when sentiment is extreme.",
+    specialty: "Sentiment Analysis"
+  },
+  {
+    id: "risk-agent",
+    name: "Risk Agent",
+    role: "Risk Management & Portfolio Protection",
+    avatar: "🛡️",
+    description: "Conservative, tail-risk-aware agent that prioritizes capital preservation over returns. Limits position sizes to manage portfolio heat. Evaluates correlation with existing positions, sets maximum drawdown limits, and uses conservative position sizing (typically 5-15% of portfolio per position). Rejects high-risk opportunities even if profitable. Considers liquidity, slippage risks, and worst-case scenarios.",
+    specialty: "Risk Management"
+  },
+  {
+    id: "strategist-agent",
+    name: "Strategist Agent",
+    role: "Market Structure & Strategy",
+    avatar: "⚡",
+    description: "Specializes in market structure, incentives, and inefficiencies. Analyzes market mechanics, identifies arbitrage opportunities, and considers incentive structures and game theory. Evaluates market maker behavior, order flow, funding rates, basis, and derivatives pricing. Identifies market manipulation patterns and strategic positioning opportunities.",
+    specialty: "Market Strategy"
+  },
+];
 
 const Agents = () => {
-  const [agents, setAgents] = useState<AgentPersona[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      const agentsData = await fetchAgents();
-      setAgents(agentsData);
-      setLoading(false);
-    };
-
-    fetchAllData();
-  }, []);
-
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
       <div className="text-center space-y-4">
@@ -32,36 +57,19 @@ const Agents = () => {
         </p>
       </div>
 
-      {loading ? (
-        <Card className="glass-card p-8 text-center">
-          <div className="text-muted-foreground">Loading agent data...</div>
-        </Card>
-      ) : (
-        <>
-          {/* Agent Cards */}
-          {agents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {agents.map((agent) => (
-                <AgentCard
-                  key={agent.id}
-                  name={agent.name}
-                  role={agent.role}
-                  avatar={agent.avatar}
-                  description={agent.description}
-                  specialty={agent.specialty}
-                />
-              ))}
-            </div>
-          ) : (
-      <Card className="glass-card p-8 text-center">
-              <h3 className="text-2xl font-semibold mb-4">No Agents Available</h3>
-              <p className="text-muted-foreground">
-                Agent information will appear here once the vault is operational.
-        </p>
-      </Card>
-          )}
-        </>
-      )}
+      {/* Agent Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {AGENT_PERSONAS.map((agent) => (
+          <AgentCard
+            key={agent.id}
+            name={agent.name}
+            role={agent.role}
+            avatar={agent.avatar}
+            description={agent.description}
+            specialty={agent.specialty}
+          />
+        ))}
+      </div>
 
       {/* System Architecture */}
       <Card className="glass-card p-6">
