@@ -10,11 +10,18 @@ const envPaths = [
   path.join(process.cwd(), '.env'),
 ];
 
+let loadedPath = null;
 for (const envPath of envPaths) {
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath });
+    loadedPath = envPath;
+    console.log(`[OpenRouter] Loaded .env from: ${envPath}`);
     break;
   }
+}
+
+if (!loadedPath) {
+  console.warn('[OpenRouter] No .env file found in any of the checked paths:', envPaths);
 }
 
 // OpenRouter API endpoint
@@ -28,12 +35,18 @@ function getOpenRouterKey(): string {
   const apiKey = process.env.OPENROUTER_API_KEY;
   
   if (!apiKey) {
+    console.error('[OpenRouter] OPENROUTER_API_KEY not found in environment');
+    console.error('[OpenRouter] Current working directory:', process.cwd());
+    console.error('[OpenRouter] Environment keys:', Object.keys(process.env).filter(k => k.includes('OPENROUTER')));
     throw new Error(
       'OPENROUTER_API_KEY environment variable is not set. ' +
       'Please set it in your .env file or environment variables.'
     );
   }
 
+  // Debug: Show first/last few chars of key (for verification)
+  console.log(`[OpenRouter] Key loaded: ${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 4)} (length: ${apiKey.length})`);
+  
   return apiKey;
 }
 
@@ -64,7 +77,7 @@ export function getGeminiClient(): any {
  */
 export async function generateJSON(
   prompt: string,
-  model: string = 'google/gemini-1.5-pro'
+  model: string = 'google/gemini-2.0-flash-lite-001'
 ): Promise<any> {
   try {
     const apiKey = getOpenRouterKey();
@@ -95,13 +108,22 @@ export async function generateJSON(
 
     if (!response.ok) {
       let errorMessage: string;
+      let errorDetails: any;
       try {
-        const errorData = await response.json() as { error?: { message?: string } };
+        const errorData = await response.json() as { error?: { message?: string; code?: string } };
         errorMessage = errorData?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
+        errorDetails = errorData;
       } catch {
         const errorText = await response.text();
         errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
       }
+      
+      // Enhanced error logging
+      console.error(`[OpenRouter] API Error (${response.status}):`, errorMessage);
+      if (errorDetails) {
+        console.error('[OpenRouter] Error details:', JSON.stringify(errorDetails, null, 2));
+      }
+      
       throw new Error(`OpenRouter API error: ${errorMessage}`);
     }
 

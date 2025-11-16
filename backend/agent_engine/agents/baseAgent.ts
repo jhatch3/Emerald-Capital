@@ -38,7 +38,7 @@ export interface AgentDecision {
 export abstract class BaseAgent {
   protected name: string;
   protected persona: string;
-  protected model: string = 'google/gemini-1.5-pro'; // OpenRouter model name
+  protected model: string = 'google/gemini-2.0-flash-lite-001'; // OpenRouter model name
 
   constructor(name: string, persona: string) {
     this.name = name;

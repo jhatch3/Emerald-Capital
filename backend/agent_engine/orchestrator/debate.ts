@@ -16,7 +16,7 @@ export async function debate(
   try {
     const debatePrompt = buildDebatePrompt(agentOutputs);
 
-    const response = await generateJSON(debatePrompt, 'google/gemini-1.5-pro');
+    const response = await generateJSON(debatePrompt, 'google/gemini-2.0-flash-lite-001');
 
     // Validate and parse the response
     if (!Array.isArray(response) || response.length !== 5) {
