@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers
-from routers import vault, users, positions, governance, agents, reports
+from routers import vault, users, positions, governance, agents, reports, agentDecision
 
 app = FastAPI(
     title="Quack API",
@@ -31,6 +31,7 @@ app.include_router(positions.router, prefix="/api/positions", tags=["positions"]
 app.include_router(governance.router, prefix="/api/governance", tags=["governance"])
 app.include_router(agents.router, prefix="/api/agents", tags=["agents"])
 app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
+app.include_router(agentDecision.router, prefix="/api/agents", tags=["agents"])
 
 
 @app.get("/")
