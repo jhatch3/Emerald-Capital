@@ -1,0 +1,23 @@
+{
+    "$schema": "https://json.schemastore.org/prettierrc",
+    "printWidth": 100,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "jsxSingleQuote": false,
+    "endOfLine": "lf",
+    "overrides": [
+        {
+            "files": "*.solana",
+            "options": { "parser": "babel" }
+        },
+        {
+            "files": "*.rs",
+            "options": { "tabWidth": 4, "printWidth": 100 }
+        }
+    ]
+}
