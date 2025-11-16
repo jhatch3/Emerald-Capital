@@ -8,52 +8,52 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Solana neon gradient theme - dark mode optimized */
-    --background: 240 10% 6%;
-    --foreground: 210 40% 98%;
+    /* Evergreen Capital - Darker Forest Green Theme */
+    --background: 120 20% 8%; /* Very dark forest green background */
+    --foreground: 0 0% 98%; /* White text for contrast */
 
-    --card: 240 8% 10%;
-    --card-foreground: 210 40% 98%;
+    --card: 120 18% 12%; /* Slightly lighter dark green for cards */
+    --card-foreground: 0 0% 98%; /* White text */
 
-    --popover: 240 10% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 120 20% 10%; /* Dark green popover */
+    --popover-foreground: 0 0% 98%;
 
-    /* Solana purple primary */
-    --primary: 270 91% 65%;
+    /* Forest green primary */
+    --primary: 142 50% 55%; /* Medium bright green */
     --primary-foreground: 0 0% 100%;
 
-    /* Solana blue secondary */
-    --secondary: 220 91% 60%;
+    /* Light green secondary */
+    --secondary: 120 40% 65%; /* Light forest green */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 5% 20%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 120 15% 18%; /* Muted dark green */
+    --muted-foreground: 120 10% 75%; /* Light green-gray for muted text */
 
-    /* Solana cyan accent */
-    --accent: 180 91% 60%;
-    --accent-foreground: 240 10% 6%;
+    /* Bright green accent */
+    --accent: 142 60% 60%; /* Bright green accent */
+    --accent-foreground: 120 20% 8%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 6% 18%;
-    --input: 240 6% 18%;
-    --ring: 270 91% 65%;
+    --border: 120 18% 16%; /* Dark green border */
+    --input: 120 18% 16%;
+    --ring: 142 50% 55%; /* Primary green ring */
 
     --radius: 0.75rem;
 
-    /* Solana gradient tokens */
-    --gradient-solana: linear-gradient(135deg, hsl(270 91% 65%) 0%, hsl(220 91% 60%) 100%);
-    --gradient-solana-glow: linear-gradient(135deg, hsl(270 91% 65% / 0.2) 0%, hsl(220 91% 60% / 0.2) 100%);
+    /* Forest green gradient tokens */
+    --gradient-evergreen: linear-gradient(135deg, hsl(142 50% 55%) 0%, hsl(120 40% 65%) 100%);
+    --gradient-evergreen-glow: linear-gradient(135deg, hsl(142 50% 55% / 0.2) 0%, hsl(120 40% 65% / 0.2) 100%);
     
     /* Glass effect */
-    --glass-bg: hsl(240 8% 10% / 0.6);
-    --glass-border: hsl(240 6% 25% / 0.3);
+    --glass-bg: hsl(120 18% 12% / 0.6);
+    --glass-border: hsl(120 18% 16% / 0.3);
 
     /* Glow effects */
-    --glow-primary: 0 0 20px hsl(270 91% 65% / 0.5);
-    --glow-secondary: 0 0 20px hsl(220 91% 60% / 0.5);
-    --glow-accent: 0 0 20px hsl(180 91% 60% / 0.5);
+    --glow-primary: 0 0 20px hsl(142 50% 55% / 0.5);
+    --glow-secondary: 0 0 20px hsl(120 40% 65% / 0.5);
+    --glow-accent: 0 0 20px hsl(142 60% 60% / 0.5);
   }
 }
 
@@ -81,12 +81,12 @@ All colors MUST be HSL.
     backdrop-filter: blur(12px);
   }
 
-  .gradient-solana {
-    background: var(--gradient-solana);
+  .gradient-evergreen {
+    background: var(--gradient-evergreen);
   }
 
-  .gradient-solana-glow {
-    background: var(--gradient-solana-glow);
+  .gradient-evergreen-glow {
+    background: var(--gradient-evergreen-glow);
   }
 
   .glow-primary {
@@ -99,6 +99,30 @@ All colors MUST be HSL.
 
   .glow-accent {
     box-shadow: var(--glow-accent);
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(120 20% 25%) hsl(120 18% 12%);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(120 18% 12%);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(120 20% 25%);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(120 25% 35%);
   }
 
   .hover-glow-primary {
@@ -125,4 +149,117 @@ All colors MUST be HSL.
   .container-tight {
     @apply max-w-4xl mx-auto px-4;
   }
+}
+
+/* Override Solana wallet adapter - make all dark green */
+.wallet-adapter-button {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.wallet-adapter-button:hover {
+  background: hsl(var(--muted)) !important;
+  border-color: hsl(var(--accent)) !important;
+}
+
+.wallet-adapter-button:not([disabled]):hover {
+  background: hsl(var(--muted)) !important;
+  border-color: hsl(var(--accent)) !important;
+}
+
+.wallet-adapter-button-trigger {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.wallet-adapter-button-trigger:hover {
+  background: hsl(var(--muted)) !important;
+  border-color: hsl(var(--accent)) !important;
+}
+
+.wallet-adapter-dropdown-list-item {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.wallet-adapter-dropdown-list-item:hover {
+  background: hsl(var(--muted)) !important;
+}
+
+/* Wallet selection modal - make all wallet rows dark green */
+.wallet-adapter-modal-wrapper {
+  background: hsl(var(--background)) !important;
+}
+
+.wallet-adapter-modal {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.wallet-adapter-modal-title {
+  color: hsl(var(--foreground)) !important;
+}
+
+.wallet-adapter-modal-list {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.wallet-adapter-modal-list-item,
+.wallet-adapter-modal-list-item button,
+.wallet-adapter-modal-list-item > * {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+  transition: all 0.2s !important;
+}
+
+.wallet-adapter-modal-list-item:hover,
+.wallet-adapter-modal-list-item:hover button,
+.wallet-adapter-modal-list-item:hover > * {
+  background: hsl(var(--muted)) !important;
+  border-color: hsl(var(--accent)) !important;
+  transform: translateY(-1px) !important;
+}
+
+.wallet-adapter-modal-list-item:active,
+.wallet-adapter-modal-list-item:active button {
+  background: hsl(var(--muted)) !important;
+}
+
+.wallet-adapter-modal-list-item:not([disabled]):hover,
+.wallet-adapter-modal-list-item:not([disabled]):hover button {
+  background: hsl(var(--muted)) !important;
+  border-color: hsl(var(--accent)) !important;
+}
+
+.wallet-adapter-modal-list-item button {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  width: 100% !important;
+  padding: 1rem !important;
+  border: none !important;
+}
+
+.wallet-adapter-modal-list-item button:hover {
+  background: hsl(var(--muted)) !important;
+}
+
+/* Target all possible wallet button variants - dark green */
+[class*="wallet-adapter-button"],
+[class*="wallet-adapter-modal"] button,
+.wallet-adapter-modal .wallet-adapter-button {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+[class*="wallet-adapter-button"]:hover,
+[class*="wallet-adapter-modal"] button:hover {
+  background: hsl(var(--muted)) !important;
+  border-color: hsl(var(--accent)) !important;
 }

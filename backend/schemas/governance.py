@@ -16,6 +16,10 @@ class Proposal(BaseModel):
     summary: str
     timestamp: str
     dataSources: List[str]
+    betStatus: Literal["OPEN", "CLOSED"]
+    betResult: Optional[Literal["WIN", "LOSS"]] = None
+    closedAt: Optional[str] = None
+    vote: Literal["YES", "NO"]  # Bet side (YES/NO)
 
 
 ProposalsResponse = List[Proposal]

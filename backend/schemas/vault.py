@@ -7,12 +7,16 @@ from typing import List, Optional
 
 class VaultStatsResponse(BaseModel):
     totalValueLocked: float
-    numberOfDepositors: int
-    strategyWinRate: float
-    pnl24h: float
+    winUserCount: int
+    loseUserCount: int
+    winPercent: float
     vaultSharePrice: float
     userDepositedAmount: Optional[float] = None
     userVaultShares: Optional[float] = None
+    userWinCount: Optional[int] = None
+    userLoseCount: Optional[int] = None
+    userWinRate: Optional[float] = None
+    userWinAmount: Optional[float] = None
 
 
 class NavHistoryPoint(BaseModel):
@@ -29,6 +33,14 @@ class TvlHistoryPoint(BaseModel):
 
 
 TvlHistoryResponse = List[TvlHistoryPoint]
+
+
+class PortfolioAmountPoint(BaseModel):
+    date: str
+    amount: float
+
+
+PortfolioAmountResponse = List[PortfolioAmountPoint]
 
 
 class MarketAllocation(BaseModel):

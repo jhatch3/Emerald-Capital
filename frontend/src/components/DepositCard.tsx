@@ -121,7 +121,7 @@ export const DepositCard = () => {
         </div>
 
         <Button
-          className="w-full h-12 bg-gradient-solana hover-glow-primary text-base font-semibold"
+          className="w-full h-12 bg-gradient-evergreen hover-glow-primary text-base font-semibold"
           onClick={handleDeposit}
           disabled={!connected}
         >

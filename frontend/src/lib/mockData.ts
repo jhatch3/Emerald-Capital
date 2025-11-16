@@ -1,4 +1,4 @@
-// Mock data for Solana AI Hedge Syndicate
+// Mock data for Evergreen Capital
 
 export const userProfile = {
   totalDeposited: 25.5,

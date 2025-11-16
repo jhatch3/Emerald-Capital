@@ -14,7 +14,6 @@ import {
 import { LineChart } from '@/components/charts/LineChart';
 import { useSolBalance } from '@/hooks/useSolBalance';
 import { BalanceVerification } from '@/components/BalanceVerification';
-import { WalletAssets } from '@/components/WalletAssets';
 
 const Profile = () => {
   const { publicKey } = useWallet();
@@ -22,7 +21,7 @@ const Profile = () => {
   const [depositedAmount, setDepositedAmount] = useState<number>(0);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [navHistory, setNavHistory] = useState<NavHistoryPoint[]>([]);
-  const [commentary, setCommentary] = useState<AgentCommentary[]>([]);
+  const [commentary, setCommentary] = useState<AgentCommentary | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Fetch all user data from backend
@@ -32,7 +31,7 @@ const Profile = () => {
         setDepositedAmount(0);
         setUserProfile(null);
         setNavHistory([]);
-        setCommentary([]);
+        setCommentary(null);
         setLoading(false);
         return;
       }
@@ -66,7 +65,7 @@ const Profile = () => {
       <div className="space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-5xl font-bold bg-gradient-solana bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold bg-gradient-evergreen bg-clip-text text-transparent">
             Your Profile
           </h1>
           <p className="text-muted-foreground text-lg">
@@ -80,7 +79,7 @@ const Profile = () => {
         {/* Wallet Info Card */}
         <Card className="glass-card p-8">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-xl bg-gradient-solana-glow flex items-center justify-center">
+            <div className="w-16 h-16 rounded-xl bg-gradient-evergreen-glow flex items-center justify-center">
               <Wallet className="w-8 h-8 text-primary" />
             </div>
             <div>
@@ -135,60 +134,22 @@ const Profile = () => {
           </div>
         </Card>
 
-        {/* All Wallet Assets */}
-        <WalletAssets />
-
         {/* User Profile Data */}
         {!loading && userProfile && (
           <>
-            <Card className="glass-card p-8">
-              <h3 className="text-2xl font-semibold mb-6">Vault Performance</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <TrendingUp className="w-4 h-4" />
-                    <span className="text-sm">Total Deposited</span>
+            {/* AI Summary */}
+            {commentary && (
+              <Card className="glass-card p-8">
+                <h3 className="text-2xl font-semibold mb-4">AI Trading Summary</h3>
+                <div className="p-6 rounded-lg bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-sm font-medium text-primary">{commentary.agent}</span>
+                    <span className="text-xs text-muted-foreground">{commentary.timestamp}</span>
                   </div>
-                  <div className="text-3xl font-bold">{userProfile.totalDeposited} SOL</div>
-                  <div className="text-sm text-muted-foreground">
-                    ≈ ${(userProfile.totalDeposited * 150).toFixed(2)} USD
-                  </div>
+                  <p className="text-foreground/90 leading-relaxed whitespace-pre-wrap">{commentary.message}</p>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Calendar className="w-4 h-4" />
-                    <span className="text-sm">Deposit Date</span>
-                  </div>
-                  <div className="text-2xl font-semibold">{userProfile.depositDate}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {userProfile.daysInVault} days in vault
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <PieChart className="w-4 h-4" />
-                    <span className="text-sm">Vault Ownership</span>
-                  </div>
-                  <div className="text-3xl font-bold">{userProfile.vaultSharePercent}%</div>
-                  <div className="text-sm text-muted-foreground">
-                    {userProfile.vaultShares.toFixed(4)} shares
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <TrendingUp className="w-4 h-4" />
-                    <span className="text-sm">Estimated Yield</span>
-                  </div>
-                  <div className="text-3xl font-bold text-green-500">+{userProfile.estimatedYieldPercent}%</div>
-                  <div className="text-sm text-muted-foreground">
-                    +{userProfile.estimatedYieldSOL} SOL
-                  </div>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            )}
 
             {/* Personal NAV Chart */}
             <Card className="glass-card p-8">
@@ -198,7 +159,7 @@ const Profile = () => {
                   data={navHistory}
                   dataKey="nav"
                   xAxisKey="date"
-                  color="hsl(270 91% 65%)"
+                  color="hsl(0 0% 98%)"
                   height={280}
                 />
               ) : (
@@ -207,27 +168,6 @@ const Profile = () => {
                 </div>
               )}
             </Card>
-
-            {/* Agent Commentary */}
-            {commentary.length > 0 && (
-              <Card className="glass-card p-8">
-                <h3 className="text-2xl font-semibold mb-4">AI Agent Commentary</h3>
-                <div className="space-y-4">
-                  {commentary.map((comment, index) => (
-                    <div
-                      key={index}
-                      className="p-4 rounded-lg bg-muted/30 border border-border/50"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-medium text-primary">{comment.agent}</span>
-                        <span className="text-xs text-muted-foreground">{comment.timestamp}</span>
-                      </div>
-                      <p className="text-foreground/90">{comment.message}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
           </>
         )}
 

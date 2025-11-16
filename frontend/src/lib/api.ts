@@ -11,17 +11,26 @@ export interface UserDeposit {
 
 export interface VaultStats {
   totalValueLocked: number;
-  numberOfDepositors: number;
-  strategyWinRate: number;
-  pnl24h: number;
+  winUserCount: number;
+  loseUserCount: number;
+  winPercent: number;
   vaultSharePrice: number;
   userDepositedAmount?: number;
   userVaultShares?: number;
+  userWinCount?: number;
+  userLoseCount?: number;
+  userWinRate?: number;
+  userWinAmount?: number;
 }
 
 export interface NavHistoryPoint {
   date: string;
   nav: number;
+}
+
+export interface PortfolioAmountPoint {
+  date: string;
+  amount: number;
 }
 
 export interface TvlHistoryPoint {
@@ -78,16 +87,18 @@ export interface Deposit {
 export interface Position {
   market: string;
   side: 'LONG' | 'SHORT';
-  size: string;
-  entryPrice: string;
-  currentPrice: string;
-  pnl: string;
-  pnlValue: string;
+  betDescription: string;
+  vote: string; // YES or NO
+  hedgeBetAmount: string; // Vault amount bet
+  myShare: string; // Portfolio amount bet
+  hedgeWinAmount?: string | null; // Vault amount won if bet passes
+  myWinAmount?: string | null; // Portfolio amount won if bet passes
+  closeDate?: string | null; // Close date for the bet
 }
 
 export interface Proposal {
   id: string;
-  market: string;
+  market: string; // Polymarket bet description
   direction: 'LONG' | 'SHORT';
   positionSize: string;
   riskScore: number;
@@ -96,6 +107,10 @@ export interface Proposal {
   summary: string;
   timestamp: string;
   dataSources: string[];
+  betStatus: 'OPEN' | 'CLOSED';
+  betResult?: 'WIN' | 'LOSS';
+  closedAt?: string;
+  vote: 'YES' | 'NO'; // Bet side (YES/NO)
 }
 
 export interface AgentReasoning {
@@ -123,7 +138,6 @@ export interface AgentPersona {
   avatar: string;
   description: string;
   specialty: string;
-  winRate: number;
 }
 
 export interface DebateMessage {
@@ -204,6 +218,23 @@ export const fetchNavHistory = async (days: number = 30): Promise<NavHistoryPoin
     const timeoutId = setTimeout(() => controller.abort(), 5000);
     
     const response = await fetch(`${API_BASE_URL}/api/vault/nav/history?days=${days}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    return handleFetchError(error, []);
+  }
+};
+
+export const fetchPortfolioAmountHistory = async (days: number = 30): Promise<PortfolioAmountPoint[]> => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    const response = await fetch(`${API_BASE_URL}/api/vault/portfolio/amount?days=${days}`, {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
@@ -364,7 +395,7 @@ export const fetchUserNavHistory = async (walletAddress: string, days: number = 
   }
 };
 
-export const fetchUserCommentary = async (walletAddress: string): Promise<AgentCommentary[]> => {
+export const fetchUserCommentary = async (walletAddress: string): Promise<AgentCommentary | null> => {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -374,10 +405,10 @@ export const fetchUserCommentary = async (walletAddress: string): Promise<AgentC
     });
     clearTimeout(timeoutId);
     
-    if (!response.ok) return [];
+    if (!response.ok) return null;
     return await response.json();
   } catch (error) {
-    return handleFetchError(error, []);
+    return handleFetchError(error, null);
   }
 };
 

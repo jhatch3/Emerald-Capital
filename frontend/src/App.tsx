@@ -8,11 +8,10 @@ import { WalletContextProvider } from "@/contexts/WalletContext";
 import { Navbar } from "@/components/Navbar";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
 import Deposit from "./pages/Deposit";
+import Vault from "./pages/Vault";
 import Governance from "./pages/Governance";
 import Agents from "./pages/Agents";
-import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 import { useWalletContext } from "@/contexts/WalletContext";
 
@@ -50,18 +49,18 @@ const App = () => (
                   } 
                 />
                 <Route 
-                  path="/profile" 
-                  element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
                   path="/deposit" 
                   element={
                     <ProtectedRoute>
                       <Deposit />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/vault" 
+                  element={
+                    <ProtectedRoute>
+                      <Vault />
                     </ProtectedRoute>
                   } 
                 />
@@ -78,14 +77,6 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Agents />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/reports" 
-                  element={
-                    <ProtectedRoute>
-                      <Reports />
                     </ProtectedRoute>
                   } 
                 />

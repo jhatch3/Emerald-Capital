@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { WalletConnectButton } from './WalletConnectButton';
 import { useWalletContext } from '@/contexts/WalletContext';
-import { LayoutDashboard, User, FileText, Users, Activity } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Building2 } from 'lucide-react';
 
 export const Navbar = () => {
   const location = useLocation();
@@ -9,10 +9,9 @@ export const Navbar = () => {
   
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/profile', label: 'Profile', icon: User },
+    { path: '/vault', label: 'Vault', icon: Building2 },
     { path: '/governance', label: 'Governance', icon: FileText },
     { path: '/agents', label: 'Agents', icon: Users },
-    { path: '/reports', label: 'Reports', icon: Activity },
   ];
 
   // Don't show full nav on landing page or if not opted in
@@ -20,25 +19,25 @@ export const Navbar = () => {
   const showFullNav = hasCompletedOnboarding && !isLandingPage;
 
   return (
-    <nav className="border-b border-border glass-card sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-lg bg-gradient-solana flex items-center justify-center glow-primary">
+    <nav className="border-b border-border/50 glass-card sticky top-0 z-50 backdrop-blur-md bg-background/80">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="flex items-center gap-3 group hover:opacity-80 transition-opacity">
+            <div className="w-11 h-11 rounded-lg bg-gradient-evergreen flex items-center justify-center glow-primary shadow-lg">
               <span className="text-2xl font-bold">Σ</span>
             </div>
             <div className="hidden sm:block">
-              <div className="text-lg font-bold bg-gradient-solana bg-clip-text text-transparent">
-                Solana AI Hedge Syndicate
+              <div className="text-lg font-bold text-foreground leading-tight">
+                Evergreen Capital
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground font-medium">
                 Decentralized AI Trading
               </div>
             </div>
           </Link>
 
           {showFullNav && (
-            <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
+            <div className="hidden lg:flex items-center gap-2 flex-1 justify-center max-w-2xl mx-8">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -46,11 +45,13 @@ export const Navbar = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all hover:bg-muted ${
-                      isActive ? 'bg-muted text-primary font-medium' : 'text-muted-foreground'
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all font-medium text-sm ${
+                      isActive
+                        ? 'bg-primary/10 text-primary shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : ''}`} />
                     <span>{item.label}</span>
                   </Link>
                 );
@@ -58,12 +59,16 @@ export const Navbar = () => {
             </div>
           )}
 
-          {showFullNav && <WalletConnectButton />}
+          {showFullNav && (
+            <div className="flex items-center">
+              <WalletConnectButton />
+            </div>
+          )}
         </div>
 
         {/* Mobile Navigation - Only show if opted in */}
         {showFullNav && (
-          <div className="flex lg:hidden items-center gap-1 mt-4 overflow-x-auto pb-2">
+          <div className="flex lg:hidden items-center gap-2 mt-2 pb-3 overflow-x-auto scrollbar-hide">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -71,12 +76,14 @@ export const Navbar = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap ${
-                    isActive ? 'bg-muted text-primary font-medium' : 'text-muted-foreground'
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all whitespace-nowrap text-sm font-medium ${
+                    isActive
+                      ? 'bg-primary/10 text-primary shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span className="text-sm">{item.label}</span>
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : ''}`} />
+                  <span>{item.label}</span>
                 </Link>
               );
             })}

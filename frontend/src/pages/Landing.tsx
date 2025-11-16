@@ -18,8 +18,8 @@ const Landing = () => {
       <div className="max-w-4xl mx-auto text-center space-y-12">
         {/* Hero Section */}
         <div className="space-y-6">
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold bg-gradient-solana bg-clip-text text-transparent leading-tight">
-            Solana AI Hedge Syndicate
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold text-foreground leading-tight">
+            Evergreen Capital
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground font-light">
             Autonomous AI-Driven Solana-Native Hedge Fund
@@ -29,7 +29,7 @@ const Landing = () => {
         {/* Summary Section */}
         <div className="max-w-3xl mx-auto">
           <p className="text-lg md:text-xl text-foreground/90 leading-relaxed">
-            Solana AI Hedge Syndicate is a fully autonomous, AI-powered hedge fund.
+            Evergreen Capital is a fully autonomous, AI-powered hedge fund.
             A decentralized swarm of agents ingests real-time trades, on-chain data, Snowflake feeds, and market signals.
             The agents debate, rank strategies, and decide positions through a multi-agent governance system.
             Users stake into the AI vault and receive passive exposure to machine-optimized trading.

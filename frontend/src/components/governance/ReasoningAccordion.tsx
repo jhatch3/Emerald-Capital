@@ -13,12 +13,23 @@ interface AgentReasoning {
   rationale: string;
 }
 
+interface DebateTranscript {
+  proposalId?: string;
+  messages: Array<{
+    agent: string;
+    message: string;
+    timestamp: string;
+    vote: 'YES' | 'NO';
+  }>;
+}
+
 interface ReasoningAccordionProps {
   reasoning: AgentReasoning[];
+  debate: DebateTranscript | null;
   dataSources: string[];
 }
 
-export const ReasoningAccordion = ({ reasoning, dataSources }: ReasoningAccordionProps) => {
+export const ReasoningAccordion = ({ reasoning, debate, dataSources }: ReasoningAccordionProps) => {
   return (
     <div className="space-y-4">
       <Accordion type="single" collapsible className="w-full">
@@ -48,7 +59,7 @@ export const ReasoningAccordion = ({ reasoning, dataSources }: ReasoningAccordio
                       {item.vote}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                     {item.rationale}
                   </p>
                 </div>
@@ -56,6 +67,48 @@ export const ReasoningAccordion = ({ reasoning, dataSources }: ReasoningAccordio
             </div>
           </AccordionContent>
         </AccordionItem>
+
+        {debate && debate.messages && debate.messages.length > 0 && (
+          <AccordionItem value="agent-debate" className="border border-border rounded-lg px-4 mt-2">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-3">
+                <span className="font-semibold">Full Agent Conversation</span>
+                <Badge variant="outline">{debate.messages.length} messages</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="pt-4 p-4 rounded-lg bg-muted/30 border border-border">
+                <div className="space-y-3">
+                  {debate.messages.map((message, index) => (
+                    <div key={index}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-sm">{message.agent}:</span>
+                        <Badge
+                          className={
+                            message.vote === 'YES'
+                              ? 'bg-green-500/20 text-green-500'
+                              : 'bg-red-500/20 text-red-500'
+                          }
+                        >
+                          {message.vote}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground font-mono ml-auto">
+                          {message.timestamp}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap mb-3">
+                        {message.message}
+                      </p>
+                      {index < debate.messages.length - 1 && (
+                        <div className="border-b border-border/30 my-2" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
 
         <AccordionItem value="data-sources" className="border border-border rounded-lg px-4 mt-2">
           <AccordionTrigger className="hover:no-underline">

@@ -29,7 +29,7 @@ class AgentCommentary(BaseModel):
     message: str
 
 
-AgentCommentaryResponse = List[AgentCommentary]
+AgentCommentaryResponse = AgentCommentary
 
 
 class Deposit(BaseModel):

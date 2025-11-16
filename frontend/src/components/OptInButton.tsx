@@ -19,7 +19,7 @@ export const OptInButton = () => {
     if (!isOptedIn) {
       optIn();
       toast.success('Successfully opted in!', {
-        description: 'Welcome to Solana AI Hedge Syndicate',
+        description: 'Welcome to Evergreen Capital',
       });
       navigate('/dashboard');
     }
@@ -27,7 +27,7 @@ export const OptInButton = () => {
 
   if (!connected) {
     return (
-      <WalletMultiButton className="!bg-gradient-solana !text-white !text-lg !font-semibold !px-12 !py-6 !h-auto !rounded-xl hover-glow-primary !transition-all !shadow-lg" />
+      <WalletMultiButton className="!bg-gradient-evergreen !text-white !text-lg !font-semibold !px-12 !py-6 !h-auto !rounded-xl hover-glow-primary !transition-all !shadow-lg" />
     );
   }
 
@@ -35,7 +35,7 @@ export const OptInButton = () => {
     return (
       <Button
         onClick={handleOptIn}
-        className="bg-gradient-solana text-white text-lg font-semibold px-12 py-6 h-auto rounded-xl hover-glow-primary transition-all shadow-lg"
+        className="!bg-gradient-evergreen !text-white !text-lg !font-semibold !px-12 !py-6 !h-auto !rounded-xl hover-glow-primary !transition-all !shadow-lg"
       >
         Opt In to Access Dashboard
       </Button>

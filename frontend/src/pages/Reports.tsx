@@ -46,7 +46,7 @@ const Reports = () => {
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
       <div className="text-center space-y-4">
-        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-solana bg-clip-text text-transparent">
+        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-evergreen bg-clip-text text-transparent">
           Performance Reports
         </h1>
         <p className="text-muted-foreground text-lg">
@@ -96,12 +96,12 @@ const Reports = () => {
               <ReportAccordion reports={reports} />
             </Card>
           ) : (
-            <Card className="glass-card p-8 text-center">
-              <h3 className="text-2xl font-semibold mb-4">No Reports Available</h3>
-              <p className="text-muted-foreground mb-4">
-                Daily performance reports will appear here once the vault begins trading operations.
-              </p>
-            </Card>
+      <Card className="glass-card p-8 text-center">
+        <h3 className="text-2xl font-semibold mb-4">No Reports Available</h3>
+        <p className="text-muted-foreground mb-4">
+          Daily performance reports will appear here once the vault begins trading operations.
+        </p>
+      </Card>
           )}
         </>
       )}

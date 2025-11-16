@@ -12,7 +12,6 @@ class AgentPersona(BaseModel):
     avatar: str
     description: str
     specialty: str
-    winRate: float
 
 
 AgentsResponse = List[AgentPersona]

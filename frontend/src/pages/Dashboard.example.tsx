@@ -66,7 +66,7 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
       <div className="text-center space-y-4">
-        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-solana bg-clip-text text-transparent">
+        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-evergreen bg-clip-text text-transparent">
           Dashboard
         </h1>
         <p className="text-muted-foreground text-lg">
@@ -114,7 +114,7 @@ const Dashboard = () => {
               data={navHistory}
               dataKey="nav"
               xAxisKey="date"
-              color="hsl(270 91% 65%)"
+              color="hsl(0 0% 98%)"
             />
           ) : (
             <div className="h-64 flex items-center justify-center text-muted-foreground">

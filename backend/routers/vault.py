@@ -8,8 +8,8 @@ from schemas.vault import (
     VaultStatsResponse,
     NavHistoryResponse,
     TvlHistoryResponse,
+    PortfolioAmountResponse,
     MarketAllocationResponse,
-    PnlDistributionResponse,
     DepositRequest,
     DepositResponse
 )
@@ -23,19 +23,27 @@ async def get_vault_stats(wallet: Optional[str] = Query(None)):
     Get vault-wide statistics.
     If wallet address is provided, includes user-specific data.
     """
-    # TODO: Replace with real database queries
+    from data.consistent_data import (
+        TOTAL_VAULT_VALUE_USD, USER_DEPOSITED_USD, USER_WIN_COUNT, USER_LOSE_COUNT, 
+        USER_WIN_RATE, USER_WIN_AMOUNT, VAULT_OWNERSHIP_PERCENT, VAULT_SHARES
+    )
+    
     stats = {
-        "totalValueLocked": 2847392.45,
-        "numberOfDepositors": 1247,
-        "strategyWinRate": 73.4,
-        "pnl24h": 14293.67,
+        "totalValueLocked": TOTAL_VAULT_VALUE_USD,
+        "winUserCount": 912,
+        "loseUserCount": 335,
+        "winPercent": 73.1,
         "vaultSharePrice": 1.0847,
     }
     
     if wallet:
-        # TODO: Fetch user-specific data from database
-        stats["userDepositedAmount"] = 0.0
-        stats["userVaultShares"] = 0.0
+        # Use consistent user data
+        stats["userDepositedAmount"] = USER_DEPOSITED_USD
+        stats["userVaultShares"] = round(VAULT_SHARES, 4)
+        stats["userWinCount"] = USER_WIN_COUNT
+        stats["userLoseCount"] = USER_LOSE_COUNT
+        stats["userWinRate"] = USER_WIN_RATE
+        stats["userWinAmount"] = USER_WIN_AMOUNT
     
     return stats
 
@@ -55,16 +63,45 @@ async def get_nav_history(days: int = Query(30, ge=1, le=365)):
 
 
 @router.get("/tvl/history", response_model=TvlHistoryResponse)
-async def get_tvl_history(days: int = Query(30, ge=1, le=365)):
+async def get_tvl_history(days: int = Query(30, ge=1, le=1095)):
     """
     Get Total Value Locked (TVL) history over time.
     """
     # TODO: Replace with real database query
-    return [
-        {"date": "Jan 1", "value": 1200000},
-        {"date": "Jan 8", "value": 1450000},
-        {"date": "Jan 15", "value": 1680000},
-    ]
+    from datetime import datetime, timedelta
+    import random
+    
+    # Generate data points for the requested days
+    data = []
+    base_value = 2500000.0
+    random.seed(42)  # For consistent data
+    
+    for i in range(days):
+        date = datetime.now() - timedelta(days=days - i - 1)
+        # Generate realistic TVL with some volatility
+        change = random.uniform(-0.02, 0.03)
+        base_value *= (1 + change)
+        data.append({
+            "date": date.strftime("%b %d, %Y") if days > 30 else date.strftime("%b %d"),
+            "value": round(base_value, 2)
+        })
+    
+    # Limit to ~200 points for performance
+    if len(data) > 200:
+        step = len(data) // 200
+        data = data[::step]
+    
+    return data
+
+
+@router.get("/portfolio/amount", response_model=PortfolioAmountResponse)
+async def get_portfolio_amount_history(days: int = Query(30, ge=1, le=1095)):
+    """
+    Get portfolio amount history over time.
+    Uses consistent data that matches user stats.
+    """
+    from data.consistent_data import generate_portfolio_amount_history
+    return generate_portfolio_amount_history(days)
 
 
 @router.get("/allocations", response_model=MarketAllocationResponse)
@@ -78,21 +115,6 @@ async def get_market_allocations():
         {"market": "Spot", "allocation": 28},
         {"market": "Options", "allocation": 18},
         {"market": "Liquid Staking", "allocation": 12},
-    ]
-
-
-@router.get("/pnl/distribution", response_model=PnlDistributionResponse)
-async def get_pnl_distribution():
-    """
-    Get PnL distribution histogram data.
-    """
-    # TODO: Replace with real database query
-    return [
-        {"range": "-5%", "count": 3},
-        {"range": "-2%", "count": 8},
-        {"range": "0%", "count": 15},
-        {"range": "+2%", "count": 28},
-        {"range": "+5%", "count": 34},
     ]
 
 
