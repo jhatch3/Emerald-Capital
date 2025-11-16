@@ -18,14 +18,12 @@ import { MetricCard } from '@/components/MetricCard';
 import { LineChart } from '@/components/charts/LineChart';
 import { BarChart } from '@/components/charts/BarChart';
 import { useSolBalance } from '@/hooks/useSolBalance';
-import { useUSDCBalance } from '@/hooks/useUSDCBalance';
 import { WalletAssets } from '@/components/WalletAssets';
 import { DollarSign, Users, TrendingUp, Activity } from 'lucide-react';
 
 const Dashboard = () => {
   const { publicKey } = useWallet();
   const { balance: solBalance } = useSolBalance();
-  const { balance: usdcBalance } = useUSDCBalance();
   const [depositedAmount, setDepositedAmount] = useState<number>(0);
   const [vaultStats, setVaultStats] = useState<VaultStats | null>(null);
   const [navHistory, setNavHistory] = useState<NavHistoryPoint[]>([]);
@@ -87,44 +85,38 @@ const Dashboard = () => {
           </p>
         </Card>
       ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="glass-card p-6">
-              <h3 className="text-lg font-semibold mb-4">SOL Balance</h3>
-              <div className="text-3xl font-bold mb-2">
-                {solBalance !== null ? `${solBalance.toFixed(4)} SOL` : 'Loading...'}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {solBalance !== null ? `≈ $${(solBalance * 150).toFixed(2)} USD` : ''}
-              </p>
-            </Card>
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+              <Card className="glass-card p-6">
+                <h3 className="text-lg font-semibold mb-4">SOL Balance</h3>
+                <div className="text-3xl font-bold mb-2">
+                  <span>{solBalance !== null ? `${solBalance.toFixed(4)} SOL` : 'Loading...'}</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  <span>{solBalance !== null ? `≈ $${(solBalance * 150).toFixed(2)} USD` : ''}</span>
+                </p>
+              </Card>
 
-            <Card className="glass-card p-6">
-              <h3 className="text-lg font-semibold mb-4">USDC Balance</h3>
-              <div className="text-3xl font-bold mb-2">
-                {usdcBalance !== null ? `${usdcBalance.toFixed(2)} USDC` : 'Loading...'}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {usdcBalance !== null ? `≈ $${usdcBalance.toFixed(2)} USD` : ''}
-              </p>
-            </Card>
-
-            <Card className="glass-card p-6">
-              <h3 className="text-lg font-semibold mb-4">Deposited in Vault</h3>
-              <div className="text-3xl font-bold mb-2">
-                {depositedAmount > 0 ? `${depositedAmount.toFixed(4)} SOL` : '0.0000 SOL'}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {depositedAmount > 0 ? `≈ $${(depositedAmount * 150).toFixed(2)} USD` : 'No deposits yet'}
-              </p>
-            </Card>
+              <Card className="glass-card p-6">
+                <h3 className="text-lg font-semibold mb-4">Deposited in Vault</h3>
+                <div className="text-3xl font-bold mb-2">
+                  <span>{depositedAmount > 0 ? `${depositedAmount.toFixed(4)} SOL` : '0.0000 SOL'}</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  <span>{depositedAmount > 0 ? `≈ $${(depositedAmount * 150).toFixed(2)} USD` : 'No deposits yet'}</span>
+                </p>
+              </Card>
+            </div>
           </div>
 
           {/* All Wallet Assets */}
-          <WalletAssets />
+          <div className="w-full">
+            <WalletAssets />
+          </div>
 
           {depositedAmount === 0 && (
-            <Card className="glass-card p-8 text-center">
+            <Card className="glass-card p-8 text-center w-full">
               <h3 className="text-2xl font-semibold mb-4">No Vault Activity Yet</h3>
               <p className="text-muted-foreground mb-4">
                 Vault statistics, positions, and performance data will appear here once you make a deposit.
@@ -138,7 +130,7 @@ const Dashboard = () => {
           {/* Vault Statistics */}
           {!loading && vaultStats && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                 <MetricCard
                   title="Total Value Locked"
                   value={`$${vaultStats.totalValueLocked.toLocaleString()}`}
@@ -169,7 +161,7 @@ const Dashboard = () => {
               </div>
 
               {/* Charts Row 1 */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
                 <Card className="glass-card p-6">
                   <h3 className="text-lg font-semibold mb-4">NAV Over Time</h3>
                   {navHistory.length > 0 ? (
@@ -204,7 +196,7 @@ const Dashboard = () => {
               </div>
 
               {/* Charts Row 2 */}
-              <Card className="glass-card p-6">
+              <Card className="glass-card p-6 w-full">
                 <h3 className="text-lg font-semibold mb-4">PnL Distribution</h3>
                 {pnlDistribution.length > 0 ? (
                   <BarChart
@@ -222,7 +214,7 @@ const Dashboard = () => {
               </Card>
 
               {/* Current Positions */}
-              <Card className="glass-card p-6">
+              <Card className="glass-card p-6 w-full">
                 <h3 className="text-lg font-semibold mb-4">Current Open Positions</h3>
                 {positions.length > 0 ? (
                   <div className="overflow-x-auto">
@@ -272,11 +264,11 @@ const Dashboard = () => {
           )}
 
           {loading && (
-            <Card className="glass-card p-8 text-center">
+            <Card className="glass-card p-8 text-center w-full">
               <div className="text-muted-foreground">Loading vault data...</div>
             </Card>
           )}
-        </>
+        </div>
       )}
     </div>
   );

@@ -7,7 +7,6 @@ from typing import List
 
 class UserProfileResponse(BaseModel):
     totalDeposited: float
-    totalDepositedUSD: float
     depositDate: str
     daysInVault: int
     vaultSharePercent: float
@@ -36,7 +35,6 @@ AgentCommentaryResponse = List[AgentCommentary]
 class Deposit(BaseModel):
     id: str
     amount: float
-    amountUSD: float
     timestamp: str
     transactionHash: str
     status: str

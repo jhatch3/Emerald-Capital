@@ -27,7 +27,6 @@ async def get_user_profile(wallet: str = Query(..., description="Wallet address"
     
     return {
         "totalDeposited": 25.5,
-        "totalDepositedUSD": 2547,
         "depositDate": "Feb 1, 2024",
         "daysInVault": 18,
         "vaultSharePercent": 0.89,
@@ -91,7 +90,6 @@ async def get_user_deposits(wallet: str = Query(..., description="Wallet address
         {
             "id": "deposit-001",
             "amount": 25.5,
-            "amountUSD": 2547,
             "timestamp": "2024-02-01T10:00:00Z",
             "transactionHash": "5j7s...",
             "status": "confirmed"

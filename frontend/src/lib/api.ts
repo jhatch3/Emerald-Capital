@@ -53,7 +53,6 @@ export interface DepositResponse {
 
 export interface UserProfile {
   totalDeposited: number;
-  totalDepositedUSD: number;
   depositDate: string;
   daysInVault: number;
   vaultSharePercent: number;
@@ -71,7 +70,6 @@ export interface AgentCommentary {
 export interface Deposit {
   id: string;
   amount: number;
-  amountUSD: number;
   timestamp: string;
   transactionHash: string;
   status: string;

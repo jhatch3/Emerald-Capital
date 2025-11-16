@@ -13,14 +13,12 @@ import {
 } from '@/lib/api';
 import { LineChart } from '@/components/charts/LineChart';
 import { useSolBalance } from '@/hooks/useSolBalance';
-import { useUSDCBalance } from '@/hooks/useUSDCBalance';
 import { BalanceVerification } from '@/components/BalanceVerification';
 import { WalletAssets } from '@/components/WalletAssets';
 
 const Profile = () => {
   const { publicKey } = useWallet();
   const { balance: solBalance, loading: solLoading } = useSolBalance();
-  const { balance: usdcBalance, loading: usdcLoading } = useUSDCBalance();
   const [depositedAmount, setDepositedAmount] = useState<number>(0);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [navHistory, setNavHistory] = useState<NavHistoryPoint[]>([]);
@@ -94,63 +92,44 @@ const Profile = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-border">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Coins className="w-4 h-4" />
-                <span className="text-sm">SOL Balance</span>
+          <div className="flex justify-center pt-6 border-t border-border">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl w-full">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Coins className="w-4 h-4" />
+                  <span className="text-sm">SOL Balance</span>
+                </div>
+                <div className="text-3xl font-bold">
+                  {!publicKey ? (
+                    <span className="text-muted-foreground">Connect Wallet</span>
+                  ) : solLoading ? (
+                    <span className="text-muted-foreground">Loading...</span>
+                  ) : solBalance !== null ? (
+                    <span>{solBalance.toFixed(4)} SOL</span>
+                  ) : (
+                    <span className="text-muted-foreground">Unable to fetch</span>
+                  )}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {solBalance !== null && !solLoading && publicKey ? (
+                    <span>≈ ${(solBalance * 150).toFixed(2)} USD</span>
+                  ) : (
+                    <span></span>
+                  )}
+                </div>
               </div>
-              <div className="text-3xl font-bold">
-                {!publicKey ? (
-                  <span className="text-muted-foreground">Connect Wallet</span>
-                ) : solLoading ? (
-                  <span className="text-muted-foreground">Loading...</span>
-                ) : solBalance !== null ? (
-                  `${solBalance.toFixed(4)} SOL`
-                ) : (
-                  <span className="text-muted-foreground">Unable to fetch</span>
-                )}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {solBalance !== null && !solLoading && publicKey
-                  ? `≈ $${(solBalance * 150).toFixed(2)} USD`
-                  : ''}
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <DollarSign className="w-4 h-4" />
-                <span className="text-sm">USDC Balance</span>
-              </div>
-              <div className="text-3xl font-bold">
-                {!publicKey ? (
-                  <span className="text-muted-foreground">Connect Wallet</span>
-                ) : usdcLoading ? (
-                  <span className="text-muted-foreground">Loading...</span>
-                ) : usdcBalance !== null ? (
-                  `${usdcBalance.toFixed(2)} USDC`
-                ) : (
-                  <span className="text-muted-foreground">Unable to fetch</span>
-                )}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {usdcBalance !== null && !usdcLoading && publicKey
-                  ? `≈ $${usdcBalance.toFixed(2)} USD`
-                  : ''}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Coins className="w-4 h-4" />
-                <span className="text-sm">Deposited in App</span>
-              </div>
-              <div className="text-3xl font-bold">
-                {depositedAmount > 0 ? `${depositedAmount.toFixed(4)} SOL` : '0.0000 SOL'}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {depositedAmount > 0 ? `≈ $${(depositedAmount * 150).toFixed(2)} USD` : 'No deposits yet'}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Coins className="w-4 h-4" />
+                  <span className="text-sm">Deposited in App</span>
+                </div>
+                <div className="text-3xl font-bold">
+                  <span>{depositedAmount > 0 ? `${depositedAmount.toFixed(4)} SOL` : '0.0000 SOL'}</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  <span>{depositedAmount > 0 ? `≈ $${(depositedAmount * 150).toFixed(2)} USD` : 'No deposits yet'}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -172,7 +151,7 @@ const Profile = () => {
                   </div>
                   <div className="text-3xl font-bold">{userProfile.totalDeposited} SOL</div>
                   <div className="text-sm text-muted-foreground">
-                    ${userProfile.totalDepositedUSD.toLocaleString()} USD
+                    ≈ ${(userProfile.totalDeposited * 150).toFixed(2)} USD
                   </div>
                 </div>
 

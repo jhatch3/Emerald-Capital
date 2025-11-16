@@ -1,7 +1,7 @@
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 interface BarChartProps {
-  data: Array<{ [key: string]: string | number }>;
+  data: any[];
   dataKey: string;
   xAxisKey: string;
   color?: string;

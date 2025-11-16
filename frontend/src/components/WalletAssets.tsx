@@ -56,7 +56,7 @@ export const WalletAssets = () => {
 
   if (!publicKey) {
     return (
-      <Card className="glass-card p-8 text-center">
+      <Card className="glass-card p-8 text-center w-full">
         <h3 className="text-2xl font-semibold mb-4">Wallet Assets</h3>
         <p className="text-muted-foreground">Connect your wallet to view your assets</p>
       </Card>
@@ -65,7 +65,7 @@ export const WalletAssets = () => {
 
   if (loading) {
     return (
-      <Card className="glass-card p-8">
+      <Card className="glass-card p-8 w-full">
         <div className="flex items-center justify-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
           <span className="text-muted-foreground">Loading assets...</span>
@@ -76,7 +76,7 @@ export const WalletAssets = () => {
 
   if (error) {
     return (
-      <Card className="glass-card p-8">
+      <Card className="glass-card p-8 w-full">
         <div className="flex items-center gap-3 text-red-500">
           <AlertCircle className="w-5 h-5" />
           <span>Error loading assets: {error.message}</span>
@@ -87,7 +87,7 @@ export const WalletAssets = () => {
 
   if (assets.length === 0) {
     return (
-      <Card className="glass-card p-8 text-center">
+      <Card className="glass-card p-8 text-center w-full">
         <h3 className="text-2xl font-semibold mb-4">No Assets Found</h3>
         <p className="text-muted-foreground">Your wallet doesn't have any assets yet</p>
       </Card>
@@ -95,7 +95,7 @@ export const WalletAssets = () => {
   }
 
   return (
-    <Card className="glass-card p-8">
+    <Card className="glass-card p-8 w-full">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-2xl font-semibold mb-2">Wallet Assets</h3>

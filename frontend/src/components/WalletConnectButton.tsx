@@ -2,15 +2,13 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Wallet } from 'lucide-react';
 import { useSolBalance } from '@/hooks/useSolBalance';
-import { useUSDCBalance } from '@/hooks/useUSDCBalance';
 
 export const WalletConnectButton = () => {
   const { connected, publicKey } = useWallet();
   const { balance: solBalance, loading: solLoading, error: solError } = useSolBalance();
-  const { balance: usdcBalance, loading: usdcLoading, error: usdcError } = useUSDCBalance();
 
-  const isLoading = solLoading || usdcLoading;
-  const hasError = solError || usdcError;
+  const isLoading = solLoading;
+  const hasError = solError;
 
   return (
     <div className="flex items-center gap-4">
@@ -30,10 +28,7 @@ export const WalletConnectButton = () => {
               'Error fetching balance'
             ) : (
               <>
-                {solBalance !== null && `${solBalance.toFixed(4)} SOL`}
-                {solBalance !== null && usdcBalance !== null && ' • '}
-                {usdcBalance !== null && `${usdcBalance.toFixed(2)} USDC`}
-                {solBalance === null && usdcBalance === null && 'Balance unavailable'}
+                {solBalance !== null ? `${solBalance.toFixed(4)} SOL` : 'Balance unavailable'}
               </>
             )}
           </div>
