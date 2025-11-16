@@ -16,8 +16,33 @@ interface SolanaWalletProviderProps {
 }
 
 export const SolanaWalletProvider: FC<SolanaWalletProviderProps> = ({ children }) => {
-  // Use devnet for demo purposes - change to 'mainnet-beta' for production
-  const endpoint = useMemo(() => clusterApiUrl('devnet'), []);
+  // Use mainnet-beta to see real wallet balances
+  // Using a more reliable RPC endpoint with fallbacks
+  const endpoint = useMemo(() => {
+    // Try to use environment variable first
+    const customEndpoint = import.meta.env.VITE_SOLANA_RPC_URL;
+    if (customEndpoint) {
+      return customEndpoint;
+    }
+    
+    // Use Helius public RPC (more reliable than default Solana RPC)
+    // You can get a free API key from https://www.helius.dev/ for better rate limits
+    const heliusApiKey = import.meta.env.VITE_HELIUS_API_KEY;
+    if (heliusApiKey) {
+      return `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`;
+    }
+    
+    // Use multiple fallback RPC endpoints for better reliability
+    // These are public endpoints that may have rate limits
+    // For production, use a paid RPC provider (Helius, QuickNode, etc.)
+    const fallbackEndpoints = [
+      'https://solana-api.projectserum.com', // Serum RPC
+      'https://api.mainnet-beta.solana.com', // Official Solana RPC (rate limited)
+    ];
+    
+    // Return the first endpoint (can implement rotation logic if needed)
+    return fallbackEndpoints[0];
+  }, []);
 
   // Include Phantom, Solflare, and Coinbase wallets
   const wallets = useMemo(

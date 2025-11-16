@@ -4,13 +4,14 @@
  */
 
 import { useSolBalance } from '@/hooks/useSolBalance';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { Card } from './ui/card';
 import { CheckCircle2, XCircle, Loader2, AlertCircle } from 'lucide-react';
 import { isValidBalance, formatBalance } from '@/utils/balanceVerification';
 
 export const BalanceVerification = () => {
   const { publicKey, connected } = useWallet();
+  const { connection } = useConnection();
   const { balance, loading, error } = useSolBalance();
 
   // Only show in development
@@ -78,15 +79,45 @@ export const BalanceVerification = () => {
             <span className="font-mono">{formatBalance(balance)} SOL</span>
           </div>
           {error && (
-            <div className="text-red-500">
-              <span className="text-muted-foreground">Error: </span>
-              {error.message}
+            <div className="text-red-500 space-y-2">
+              <div>
+                <span className="text-muted-foreground">Error: </span>
+                {error.message}
+              </div>
+              {error.message.includes('rate limit') && (
+                <div className="text-xs text-yellow-500 bg-yellow-500/10 p-2 rounded mt-2">
+                  <strong>Solution:</strong> The public Solana RPC has rate limits. To fix this:
+                  <ol className="list-decimal list-inside mt-1 space-y-1">
+                    <li>Get a free API key from <a href="https://www.helius.dev/" target="_blank" rel="noopener noreferrer" className="underline">Helius</a> or use another RPC provider</li>
+                    <li>Create a <code className="bg-muted px-1 rounded">.env</code> file in the frontend directory</li>
+                    <li>Add: <code className="bg-muted px-1 rounded">VITE_HELIUS_API_KEY=your-api-key</code></li>
+                    <li>Restart the dev server</li>
+                  </ol>
+                </div>
+              )}
             </div>
           )}
           {publicKey && (
             <div>
               <span className="text-muted-foreground">Wallet: </span>
               <span className="font-mono text-xs">{publicKey.toString().slice(0, 8)}...{publicKey.toString().slice(-8)}</span>
+            </div>
+          )}
+          {connection && (
+            <div>
+              <span className="text-muted-foreground">Network: </span>
+              <span className="font-mono text-xs">
+                {connection.rpcEndpoint.includes('mainnet') ? 'Mainnet' : 
+                 connection.rpcEndpoint.includes('devnet') ? 'Devnet' : 
+                 connection.rpcEndpoint.includes('testnet') ? 'Testnet' : 
+                 'Custom'}
+              </span>
+            </div>
+          )}
+          {connection && (
+            <div className="text-xs">
+              <span className="text-muted-foreground">Endpoint: </span>
+              <span className="font-mono break-all">{connection.rpcEndpoint}</span>
             </div>
           )}
         </div>

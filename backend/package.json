@@ -1,0 +1,22 @@
+{
+  "name": "quack-backend-agents",
+  "version": "1.0.0",
+  "description": "5-Agent Gemini Decision Engine for Quack Hedge Fund",
+  "main": "routes/agentDecision.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/routes/agentDecision.js",
+    "dev": "ts-node routes/agentDecision.ts"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}
+

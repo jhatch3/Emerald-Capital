@@ -31,12 +31,47 @@ export const useSolBalance = (): UseSolBalanceReturn => {
       try {
         setLoading(true);
         setError(null);
-        const lamports = await connection.getBalance(publicKey);
+        
+        // Try with retry logic for rate limits
+        let lamports: number | null = null;
+        let lastError: Error | null = null;
+        
+        // Try different commitment levels
+        const commitments: Array<'processed' | 'confirmed' | 'finalized'> = ['confirmed', 'processed', 'finalized'];
+        
+        for (const commitment of commitments) {
+          try {
+            lamports = await connection.getBalance(publicKey, commitment);
+            break; // Success, exit loop
+          } catch (err) {
+            lastError = err instanceof Error ? err : new Error('Failed to fetch balance');
+            // Check if it's a rate limit error
+            const isRateLimit = lastError.message.includes('403') || 
+                               lastError.message.includes('Access forbidden') ||
+                               lastError.message.includes('rate limit');
+            
+            if (isRateLimit && commitment !== 'finalized') {
+              // Try next commitment level
+              continue;
+            } else if (isRateLimit) {
+              // All commitment levels failed with rate limit
+              throw new Error('RPC rate limit exceeded. The public Solana RPC has rate limits. Please set VITE_SOLANA_RPC_URL or VITE_HELIUS_API_KEY environment variable for a custom RPC endpoint.');
+            } else {
+              // Non-rate-limit error, throw immediately
+              throw lastError;
+            }
+          }
+        }
+        
+        if (lamports === null) {
+          throw lastError || new Error('Failed to fetch balance');
+        }
+        
         const solBalance = lamports / LAMPORTS_PER_SOL;
         setBalance(solBalance);
+        setError(null); // Clear any previous errors on success
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to fetch balance');
-        console.error('Error fetching SOL balance:', error);
         setError(error);
         setBalance(null);
       } finally {

@@ -59,8 +59,20 @@ export const useUSDCBalance = (): UseUSDCBalanceReturn => {
         setBalance(totalBalance);
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to fetch USDC balance');
-        console.error('Error fetching USDC balance:', error);
-        setError(error);
+        
+        // Check if it's a rate limit error
+        const isRateLimit = error.message.includes('403') || 
+                           error.message.includes('Access forbidden') ||
+                           error.message.includes('rate limit');
+        
+        if (isRateLimit) {
+          console.warn('Rate limited when fetching USDC balance');
+          // Don't log as error, just set balance to null
+          setError(null); // Suppress rate limit errors for USDC
+        } else {
+          console.error('Error fetching USDC balance:', error);
+          setError(error);
+        }
         setBalance(null);
       } finally {
         setLoading(false);
