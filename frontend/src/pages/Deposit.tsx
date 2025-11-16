@@ -2,25 +2,45 @@ import { DepositCard } from '@/components/DepositCard';
 import { Card } from '@/components/ui/card';
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { fetchUserDeposit } from '@/lib/api';
+import { 
+  fetchUserDeposit,
+  fetchVaultStats,
+  fetchTvlHistory,
+  type VaultStats,
+  type TvlHistoryPoint
+} from '@/lib/api';
+import { MetricCard } from '@/components/MetricCard';
+import { LineChart } from '@/components/charts/LineChart';
+import { DollarSign, Users, TrendingUp, Coins } from 'lucide-react';
 
 const Deposit = () => {
   const { publicKey } = useWallet();
   const [depositedAmount, setDepositedAmount] = useState<number>(0);
+  const [vaultStats, setVaultStats] = useState<VaultStats | null>(null);
+  const [tvlHistory, setTvlHistory] = useState<TvlHistoryPoint[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDeposit = async () => {
-      if (!publicKey) {
-        setDepositedAmount(0);
-        return;
-      }
+    const fetchAllData = async () => {
+      setLoading(true);
+      
+      const [deposit, stats, tvl] = await Promise.all([
+        publicKey ? fetchUserDeposit(publicKey.toString()) : Promise.resolve(0),
+        fetchVaultStats(publicKey?.toString()),
+        fetchTvlHistory(30),
+      ]);
 
-      // fetchUserDeposit handles errors internally and returns 0
-      const deposit = await fetchUserDeposit(publicKey.toString());
       setDepositedAmount(deposit);
+      setVaultStats(stats);
+      setTvlHistory(tvl);
+      setLoading(false);
     };
 
-    fetchDeposit();
+    fetchAllData();
+    
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchAllData, 30000);
+    return () => clearInterval(interval);
   }, [publicKey]);
 
   return (
@@ -42,21 +62,54 @@ const Deposit = () => {
 
         {/* Right Column - Vault Stats */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="glass-card p-6">
-            <h3 className="text-lg font-semibold mb-4">Your Deposit Status</h3>
-            <div className="space-y-4">
-              <div>
-                <div className="text-sm text-muted-foreground mb-1">Total Deposited</div>
-                <div className="text-2xl font-bold">
-                  {depositedAmount > 0 ? `${depositedAmount.toFixed(4)} SOL` : '0.0000 SOL'}
-                </div>
-              </div>
-              {depositedAmount === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  You haven't made any deposits yet. Use the deposit form to stake your SOL.
-                </p>
-              )}
+          {!loading && vaultStats && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <MetricCard
+                title="Total Vault Liquidity"
+                value={`$${vaultStats.totalValueLocked.toLocaleString()}`}
+                icon={DollarSign}
+              />
+              <MetricCard
+                title="Number of Depositors"
+                value={vaultStats.numberOfDepositors.toLocaleString()}
+                icon={Users}
+              />
+              <MetricCard
+                title="Vault Share Price"
+                value={`${vaultStats.vaultSharePrice.toFixed(4)} SOL`}
+                subtitle="Current NAV per share"
+                icon={Coins}
+              />
+              <MetricCard
+                title="Your Deposited Amount"
+                value={`${depositedAmount.toFixed(2)} SOL`}
+                subtitle={vaultStats.userVaultShares ? `${vaultStats.userVaultShares.toFixed(4)} shares` : 'No shares yet'}
+                icon={TrendingUp}
+              />
             </div>
+          )}
+
+          {loading && (
+            <Card className="glass-card p-6">
+              <div className="text-muted-foreground text-center py-4">Loading vault data...</div>
+            </Card>
+          )}
+
+          <Card className="glass-card p-6">
+            <h3 className="text-lg font-semibold mb-4">Total Value Locked Over Time</h3>
+            {tvlHistory.length > 0 ? (
+              <LineChart
+                data={tvlHistory}
+                dataKey="value"
+                xAxisKey="date"
+                color="hsl(270 91% 65%)"
+                height={300}
+              />
+            ) : (
+              <div className="h-64 flex items-center justify-center text-muted-foreground">
+                No TVL history available
+              </div>
+            )}
           </Card>
 
           <Card className="glass-card p-6">

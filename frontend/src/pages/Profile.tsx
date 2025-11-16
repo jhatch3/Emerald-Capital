@@ -1,8 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Card } from '@/components/ui/card';
-import { Wallet, Coins, DollarSign } from 'lucide-react';
-import { fetchUserDeposit } from '@/lib/api';
+import { Wallet, Coins, DollarSign, Calendar, TrendingUp, PieChart } from 'lucide-react';
+import { 
+  fetchUserDeposit,
+  fetchUserProfile,
+  fetchUserNavHistory,
+  fetchUserCommentary,
+  type UserProfile,
+  type NavHistoryPoint,
+  type AgentCommentary
+} from '@/lib/api';
+import { LineChart } from '@/components/charts/LineChart';
 import { useSolBalance } from '@/hooks/useSolBalance';
 import { useUSDCBalance } from '@/hooks/useUSDCBalance';
 import { BalanceVerification } from '@/components/BalanceVerification';
@@ -13,21 +22,45 @@ const Profile = () => {
   const { balance: solBalance, loading: solLoading } = useSolBalance();
   const { balance: usdcBalance, loading: usdcLoading } = useUSDCBalance();
   const [depositedAmount, setDepositedAmount] = useState<number>(0);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [navHistory, setNavHistory] = useState<NavHistoryPoint[]>([]);
+  const [commentary, setCommentary] = useState<AgentCommentary[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch deposited amount from backend
+  // Fetch all user data from backend
   useEffect(() => {
-    const fetchDeposit = async () => {
+    const fetchAllData = async () => {
       if (!publicKey) {
         setDepositedAmount(0);
+        setUserProfile(null);
+        setNavHistory([]);
+        setCommentary([]);
+        setLoading(false);
         return;
       }
 
-      // fetchUserDeposit handles errors internally and returns 0
-      const deposit = await fetchUserDeposit(publicKey.toString());
+      setLoading(true);
+      const walletAddress = publicKey.toString();
+
+      const [deposit, profile, nav, comments] = await Promise.all([
+        fetchUserDeposit(walletAddress),
+        fetchUserProfile(walletAddress),
+        fetchUserNavHistory(walletAddress, 30),
+        fetchUserCommentary(walletAddress),
+      ]);
+
       setDepositedAmount(deposit);
+      setUserProfile(profile);
+      setNavHistory(nav);
+      setCommentary(comments);
+      setLoading(false);
     };
 
-    fetchDeposit();
+    fetchAllData();
+    
+    // Refresh every 60 seconds
+    const interval = setInterval(fetchAllData, 60000);
+    return () => clearInterval(interval);
   }, [publicKey]);
 
   return (
@@ -126,15 +159,103 @@ const Profile = () => {
         {/* All Wallet Assets */}
         <WalletAssets />
 
-        {depositedAmount > 0 && (
+        {/* User Profile Data */}
+        {!loading && userProfile && (
           <>
             <Card className="glass-card p-8">
-              <h3 className="text-2xl font-semibold mb-4">Deposit Information</h3>
-              <p className="text-muted-foreground">
-                Deposit history and performance data will appear here once you make a deposit.
-              </p>
+              <h3 className="text-2xl font-semibold mb-6">Vault Performance</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="text-sm">Total Deposited</span>
+                  </div>
+                  <div className="text-3xl font-bold">{userProfile.totalDeposited} SOL</div>
+                  <div className="text-sm text-muted-foreground">
+                    ${userProfile.totalDepositedUSD.toLocaleString()} USD
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="w-4 h-4" />
+                    <span className="text-sm">Deposit Date</span>
+                  </div>
+                  <div className="text-2xl font-semibold">{userProfile.depositDate}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {userProfile.daysInVault} days in vault
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <PieChart className="w-4 h-4" />
+                    <span className="text-sm">Vault Ownership</span>
+                  </div>
+                  <div className="text-3xl font-bold">{userProfile.vaultSharePercent}%</div>
+                  <div className="text-sm text-muted-foreground">
+                    {userProfile.vaultShares.toFixed(4)} shares
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="text-sm">Estimated Yield</span>
+                  </div>
+                  <div className="text-3xl font-bold text-green-500">+{userProfile.estimatedYieldPercent}%</div>
+                  <div className="text-sm text-muted-foreground">
+                    +{userProfile.estimatedYieldSOL} SOL
+                  </div>
+                </div>
+              </div>
             </Card>
+
+            {/* Personal NAV Chart */}
+            <Card className="glass-card p-8">
+              <h3 className="text-2xl font-semibold mb-6">Your NAV Over Time</h3>
+              {navHistory.length > 0 ? (
+                <LineChart
+                  data={navHistory}
+                  dataKey="nav"
+                  xAxisKey="date"
+                  color="hsl(270 91% 65%)"
+                  height={280}
+                />
+              ) : (
+                <div className="h-64 flex items-center justify-center text-muted-foreground">
+                  No NAV history available
+                </div>
+              )}
+            </Card>
+
+            {/* Agent Commentary */}
+            {commentary.length > 0 && (
+              <Card className="glass-card p-8">
+                <h3 className="text-2xl font-semibold mb-4">AI Agent Commentary</h3>
+                <div className="space-y-4">
+                  {commentary.map((comment, index) => (
+                    <div
+                      key={index}
+                      className="p-4 rounded-lg bg-muted/30 border border-border/50"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-medium text-primary">{comment.agent}</span>
+                        <span className="text-xs text-muted-foreground">{comment.timestamp}</span>
+                      </div>
+                      <p className="text-foreground/90">{comment.message}</p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
           </>
+        )}
+
+        {loading && (
+          <Card className="glass-card p-8 text-center">
+            <div className="text-muted-foreground">Loading profile data...</div>
+          </Card>
         )}
 
         {depositedAmount === 0 && (

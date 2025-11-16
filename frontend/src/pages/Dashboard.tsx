@@ -1,30 +1,71 @@
 import { Card } from '@/components/ui/card';
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { fetchUserDeposit } from '@/lib/api';
+import { 
+  fetchUserDeposit,
+  fetchVaultStats,
+  fetchNavHistory,
+  fetchMarketAllocations,
+  fetchPnlDistribution,
+  fetchCurrentPositions,
+  type VaultStats,
+  type NavHistoryPoint,
+  type MarketAllocation,
+  type PnlHistogramPoint,
+  type Position
+} from '@/lib/api';
+import { MetricCard } from '@/components/MetricCard';
+import { LineChart } from '@/components/charts/LineChart';
+import { BarChart } from '@/components/charts/BarChart';
 import { useSolBalance } from '@/hooks/useSolBalance';
 import { useUSDCBalance } from '@/hooks/useUSDCBalance';
 import { WalletAssets } from '@/components/WalletAssets';
+import { DollarSign, Users, TrendingUp, Activity } from 'lucide-react';
 
 const Dashboard = () => {
   const { publicKey } = useWallet();
   const { balance: solBalance } = useSolBalance();
   const { balance: usdcBalance } = useUSDCBalance();
   const [depositedAmount, setDepositedAmount] = useState<number>(0);
+  const [vaultStats, setVaultStats] = useState<VaultStats | null>(null);
+  const [navHistory, setNavHistory] = useState<NavHistoryPoint[]>([]);
+  const [marketAllocations, setMarketAllocations] = useState<MarketAllocation[]>([]);
+  const [pnlDistribution, setPnlDistribution] = useState<PnlHistogramPoint[]>([]);
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDeposit = async () => {
-      if (!publicKey) {
-        setDepositedAmount(0);
-        return;
+    const fetchAllData = async () => {
+      setLoading(true);
+      
+      // Fetch user deposit
+      if (publicKey) {
+        const deposit = await fetchUserDeposit(publicKey.toString());
+        setDepositedAmount(deposit);
       }
 
-      // fetchUserDeposit handles errors internally and returns 0
-      const deposit = await fetchUserDeposit(publicKey.toString());
-      setDepositedAmount(deposit);
+      // Fetch vault data
+      const [stats, nav, allocations, pnl, currentPositions] = await Promise.all([
+        fetchVaultStats(publicKey?.toString()),
+        fetchNavHistory(30),
+        fetchMarketAllocations(),
+        fetchPnlDistribution(),
+        fetchCurrentPositions(),
+      ]);
+
+      setVaultStats(stats);
+      setNavHistory(nav);
+      setMarketAllocations(allocations);
+      setPnlDistribution(pnl);
+      setPositions(currentPositions);
+      setLoading(false);
     };
 
-    fetchDeposit();
+    fetchAllData();
+    
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchAllData, 30000);
+    return () => clearInterval(interval);
   }, [publicKey]);
 
   return (
@@ -94,13 +135,145 @@ const Dashboard = () => {
             </Card>
           )}
 
-          {depositedAmount > 0 && (
+          {/* Vault Statistics */}
+          {!loading && vaultStats && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <MetricCard
+                  title="Total Value Locked"
+                  value={`$${vaultStats.totalValueLocked.toLocaleString()}`}
+                  icon={DollarSign}
+                  trend="up"
+                  trendValue="24h: +$14,293"
+                />
+                <MetricCard
+                  title="Number of Depositors"
+                  value={vaultStats.numberOfDepositors.toLocaleString()}
+                  icon={Users}
+                  subtitle="Active participants"
+                />
+                <MetricCard
+                  title="Strategy Win Rate"
+                  value={`${vaultStats.strategyWinRate}%`}
+                  icon={TrendingUp}
+                  trend="up"
+                  trendValue="Last 30 days"
+                />
+                <MetricCard
+                  title="24h PnL"
+                  value={`$${vaultStats.pnl24h.toLocaleString()}`}
+                  icon={Activity}
+                  trend="up"
+                  trendValue="+0.52%"
+                />
+              </div>
+
+              {/* Charts Row 1 */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="glass-card p-6">
+                  <h3 className="text-lg font-semibold mb-4">NAV Over Time</h3>
+                  {navHistory.length > 0 ? (
+                    <LineChart
+                      data={navHistory}
+                      dataKey="nav"
+                      xAxisKey="date"
+                      color="hsl(270 91% 65%)"
+                    />
+                  ) : (
+                    <div className="h-64 flex items-center justify-center text-muted-foreground">
+                      No data available
+                    </div>
+                  )}
+                </Card>
+
+                <Card className="glass-card p-6">
+                  <h3 className="text-lg font-semibold mb-4">Allocation by Market Type</h3>
+                  {marketAllocations.length > 0 ? (
+                    <BarChart
+                      data={marketAllocations}
+                      dataKey="allocation"
+                      xAxisKey="market"
+                      color="hsl(220 91% 60%)"
+                    />
+                  ) : (
+                    <div className="h-64 flex items-center justify-center text-muted-foreground">
+                      No data available
+                    </div>
+                  )}
+                </Card>
+              </div>
+
+              {/* Charts Row 2 */}
+              <Card className="glass-card p-6">
+                <h3 className="text-lg font-semibold mb-4">PnL Distribution</h3>
+                {pnlDistribution.length > 0 ? (
+                  <BarChart
+                    data={pnlDistribution}
+                    dataKey="count"
+                    xAxisKey="range"
+                    color="hsl(180 91% 60%)"
+                    height={250}
+                  />
+                ) : (
+                  <div className="h-64 flex items-center justify-center text-muted-foreground">
+                    No data available
+                  </div>
+                )}
+              </Card>
+
+              {/* Current Positions */}
+              <Card className="glass-card p-6">
+                <h3 className="text-lg font-semibold mb-4">Current Open Positions</h3>
+                {positions.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Market</th>
+                          <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Side</th>
+                          <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Size</th>
+                          <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Entry</th>
+                          <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Current</th>
+                          <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">PnL</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {positions.map((position, index) => (
+                          <tr key={index} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                            <td className="py-3 px-4 font-medium">{position.market}</td>
+                            <td className="py-3 px-4">
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                position.side === 'LONG' 
+                                  ? 'bg-green-500/20 text-green-500' 
+                                  : 'bg-red-500/20 text-red-500'
+                              }`}>
+                                {position.side}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-right">{position.size}</td>
+                            <td className="py-3 px-4 text-right text-muted-foreground">{position.entryPrice}</td>
+                            <td className="py-3 px-4 text-right">{position.currentPrice}</td>
+                            <td className="py-3 px-4 text-right">
+                              <div className="text-green-500 font-medium">{position.pnl}</div>
+                              <div className="text-xs text-muted-foreground">{position.pnlValue}</div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    No open positions
+                  </div>
+                )}
+              </Card>
+            </>
+          )}
+
+          {loading && (
             <Card className="glass-card p-8 text-center">
-              <h3 className="text-2xl font-semibold mb-4">Vault Statistics</h3>
-              <p className="text-muted-foreground">
-                Detailed vault performance metrics, positions, and trading activity will be displayed here.
-                This data will be fetched from on-chain sources once the vault is operational.
-              </p>
+              <div className="text-muted-foreground">Loading vault data...</div>
             </Card>
           )}
         </>
