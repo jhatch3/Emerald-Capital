@@ -67,8 +67,8 @@ const Governance = () => {
         <Card className="glass-card p-6 sm:p-8 text-center">
           <h3 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">No Active Proposals</h3>
           <p className="text-muted-foreground text-sm sm:text-base mb-4 px-2">
-            AI agent proposals and governance decisions will appear here once the vault is operational.
-          </p>
+          AI agent proposals and governance decisions will appear here once the vault is operational.
+        </p>
         </Card>
       ) : (
         <div className="space-y-6 sm:space-y-8">
@@ -232,7 +232,7 @@ const Governance = () => {
                     </AccordionItem>
                   </Accordion>
                 )}
-              </Card>
+      </Card>
             );
           })}
         </div>

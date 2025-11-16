@@ -155,10 +155,10 @@ const Dashboard = () => {
                 <>
                   <div className="text-2xl font-bold mb-1">
                     <span>Loading...</span>
-                  </div>
+              </div>
                   <p className="text-xs text-muted-foreground">
                     <span>Calculating portfolio value</span>
-                  </p>
+              </p>
                 </>
               )}
             </Card>
@@ -181,10 +181,10 @@ const Dashboard = () => {
                 <>
                   <div className="text-2xl font-bold mb-1">
                     <span>Loading...</span>
-                  </div>
+              </div>
                   <p className="text-xs text-muted-foreground">
                     <span>Calculating return</span>
-                  </p>
+              </p>
                 </>
               )}
             </Card>

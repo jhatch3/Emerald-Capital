@@ -78,7 +78,7 @@ export const LineChart = ({
           ))}
         </div>
       )}
-      <ResponsiveContainer width="100%" height={height}>
+    <ResponsiveContainer width="100%" height={height}>
       <RechartsLineChart 
         data={displayData} 
         margin={{ top: showTimeRangeSelector ? 50 : 5, right: 20, left: 0, bottom: showBrush ? 40 : marginBottom }}
@@ -146,10 +146,10 @@ export const LineChart = ({
             />
           ))
         ) : (
-          <Line 
-            type="monotone" 
-            dataKey={dataKey} 
-            stroke={color}
+        <Line 
+          type="monotone" 
+          dataKey={dataKey} 
+          stroke={color}
             strokeWidth={3}
             dot={{ r: 4, fill: color, strokeWidth: 2, stroke: color }}
             activeDot={{ r: 10, fill: color, strokeWidth: 3, stroke: '#fff', cursor: 'pointer' }}
