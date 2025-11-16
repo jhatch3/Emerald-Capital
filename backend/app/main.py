@@ -17,21 +17,32 @@ app = FastAPI(
 )
 
 # CORS Configuration
-# Allow both localhost and Vercel deployment URLs
+# Allow both localhost and Railway deployment URLs
 allowed_origins = [
     "http://localhost:8080",
     "http://localhost:3000",
 ]
 
-# Get VERCEL_URL from environment if available
-vercel_url = os.getenv("VERCEL_URL")
-if vercel_url:
-    allowed_origins.append(f"https://{vercel_url}")
+# Get Railway deployment URLs from environment
+railway_public_domain = os.getenv("RAILWAY_PUBLIC_DOMAIN")
+railway_static_url = os.getenv("RAILWAY_STATIC_URL")
 
-# Allow all origins in production (Vercel will handle CORS)
-# For more security, you can restrict to specific domains
-if os.getenv("VERCEL") or os.getenv("ENVIRONMENT") == "production":
-    allowed_origins = ["*"]  # Allow all in production
+if railway_public_domain:
+    allowed_origins.append(f"https://{railway_public_domain}")
+if railway_static_url:
+    allowed_origins.append(railway_static_url)
+
+# Allow Railway URLs pattern
+# Railway services get *.up.railway.app domains
+railway_env = os.getenv("RAILWAY_ENVIRONMENT")
+if railway_env:
+    # Allow all Railway domains
+    allowed_origins.extend([
+        "https://*.up.railway.app",
+        "http://*.up.railway.app",
+    ])
+    # Also allow all origins in Railway (can be restricted for production)
+    allowed_origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
