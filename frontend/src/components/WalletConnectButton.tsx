@@ -43,9 +43,9 @@ export const WalletConnectButton = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-10 px-4 font-medium hover:bg-muted/50">
               <Wallet className="w-4 h-4 text-primary mr-2" />
-              <span className="text-foreground">
+            <span className="text-foreground">
                 {showFullAddress ? publicKey.toString() : `${publicKey.toString().slice(0, 4)}...${publicKey.toString().slice(-4)}`}
-              </span>
+            </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
@@ -53,19 +53,19 @@ export const WalletConnectButton = () => {
               <div className="text-xs text-muted-foreground mb-1">Connected Wallet</div>
               <div className="font-mono text-sm text-foreground break-all mb-2">
                 {showFullAddress ? publicKey.toString() : `${publicKey.toString().slice(0, 4)}...${publicKey.toString().slice(-4)}`}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {isLoading ? (
-                  'Loading balance...'
-                ) : hasError ? (
-                  'Error fetching balance'
-                ) : (
-                  <>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {isLoading ? (
+              'Loading balance...'
+            ) : hasError ? (
+              'Error fetching balance'
+            ) : (
+              <>
                     {solBalance !== null ? `${solBalance.toFixed(4)} SOL` : 'Balance unavailable'}
-                  </>
-                )}
-              </div>
-            </div>
+              </>
+            )}
+          </div>
+        </div>
             <DropdownMenuItem
               onClick={() => setShowFullAddress(!showFullAddress)}
               className="cursor-pointer"

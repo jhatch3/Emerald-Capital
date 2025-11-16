@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<<<<<<< HEAD
   <!-- Evergreen Tree Icon - Bright Green Theme -->
   
   <!-- Tree trunk -->
@@ -23,4 +24,26 @@
   
   <!-- Top point -->
   <path d="M 46 20 Q 50 8 54 20 Q 50 6 46 20" fill="#4AB84A"/>
+=======
+  <!-- Simplified tree design for small favicon -->
+  
+  <!-- Tree trunk -->
+  <rect x="42" y="70" width="16" height="25" fill="#8B4513" rx="3"/>
+  
+  <!-- Tree crown - layered triangles -->
+  <!-- Bottom layer -->
+  <path d="M 15 70 L 50 40 L 85 70 Z" fill="#2D5016"/>
+  <path d="M 20 65 L 50 38 L 80 65 Z" fill="#3A6B1F"/>
+  
+  <!-- Middle layer -->
+  <path d="M 25 55 L 50 30 L 75 55 Z" fill="#2D5016"/>
+  <path d="M 28 52 L 50 28 L 72 52 Z" fill="#3A6B1F"/>
+  
+  <!-- Top layer -->
+  <path d="M 35 42 L 50 20 L 65 42 Z" fill="#2D5016"/>
+  <path d="M 37 40 L 50 18 L 63 40 Z" fill="#3A6B1F"/>
+  
+  <!-- Top point -->
+  <path d="M 45 25 L 50 12 L 55 25 Z" fill="#2D5016"/>
+>>>>>>> 71ac21487132c73ecf0c45b40fbb3c4239ae650b
 </svg>

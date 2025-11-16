@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<<<<<<< HEAD
   <!-- Modern "E" Logo -->
   
   <!-- Background circle with gradient effect -->
@@ -32,5 +33,19 @@
   
   <!-- Subtle accent dot (optional) -->
   <circle cx="68" cy="50" r="3" fill="#8FBC8F" opacity="0.6"/>
+=======
+  <!-- "E" letter with tree/forest theme -->
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="45" fill="#2D5016"/>
+  <circle cx="50" cy="50" r="40" fill="#3A6B1F"/>
+  
+  <!-- Letter "E" -->
+  <path d="M 25 20 L 25 80 L 70 80 L 70 65 L 40 65 L 40 55 L 65 55 L 65 45 L 40 45 L 40 35 L 70 35 L 70 20 Z" 
+        fill="#8FBC8F" stroke="#4A7C2A" stroke-width="2"/>
+  
+  <!-- Subtle tree accent in corner -->
+  <path d="M 75 25 L 80 15 L 85 25 L 80 20 Z" fill="#4A7C2A" opacity="0.6"/>
+>>>>>>> 71ac21487132c73ecf0c45b40fbb3c4239ae650b
 </svg>
 

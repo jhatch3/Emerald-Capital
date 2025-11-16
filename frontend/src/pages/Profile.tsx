@@ -93,40 +93,40 @@ const Profile = () => {
           {/* Stats Grid */}
           <div className="flex justify-center pt-6 border-t border-border">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl w-full">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Coins className="w-4 h-4" />
-                  <span className="text-sm">SOL Balance</span>
-                </div>
-                <div className="text-3xl font-bold">
-                  {!publicKey ? (
-                    <span className="text-muted-foreground">Connect Wallet</span>
-                  ) : solLoading ? (
-                    <span className="text-muted-foreground">Loading...</span>
-                  ) : solBalance !== null ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Coins className="w-4 h-4" />
+                <span className="text-sm">SOL Balance</span>
+              </div>
+              <div className="text-3xl font-bold">
+                {!publicKey ? (
+                  <span className="text-muted-foreground">Connect Wallet</span>
+                ) : solLoading ? (
+                  <span className="text-muted-foreground">Loading...</span>
+                ) : solBalance !== null ? (
                     <span>{solBalance.toFixed(4)} SOL</span>
-                  ) : (
-                    <span className="text-muted-foreground">Unable to fetch</span>
-                  )}
-                </div>
-                <div className="text-sm text-muted-foreground">
+                ) : (
+                  <span className="text-muted-foreground">Unable to fetch</span>
+                )}
+              </div>
+              <div className="text-sm text-muted-foreground">
                   {solBalance !== null && !solLoading && publicKey ? (
                     <span>≈ ${(solBalance * 150).toFixed(2)} USD</span>
                   ) : (
                     <span></span>
-                  )}
-                </div>
+                )}
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Coins className="w-4 h-4" />
-                  <span className="text-sm">Deposited in App</span>
-                </div>
-                <div className="text-3xl font-bold">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Coins className="w-4 h-4" />
+                <span className="text-sm">Deposited in App</span>
+              </div>
+              <div className="text-3xl font-bold">
                   <span>{depositedAmount > 0 ? `${depositedAmount.toFixed(4)} SOL` : '0.0000 SOL'}</span>
-                </div>
-                <div className="text-sm text-muted-foreground">
+              </div>
+              <div className="text-sm text-muted-foreground">
                   <span>{depositedAmount > 0 ? `≈ $${(depositedAmount * 150).toFixed(2)} USD` : 'No deposits yet'}</span>
                 </div>
               </div>
