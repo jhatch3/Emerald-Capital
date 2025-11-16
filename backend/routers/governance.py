@@ -6,6 +6,9 @@ from fastapi import APIRouter, Path, Query, HTTPException
 from typing import Optional
 import random
 from datetime import datetime
+import subprocess
+import json
+from pathlib import Path as PathLib
 from schemas.governance import (
     ProposalsResponse,
     ProposalResponse,
@@ -17,36 +20,140 @@ from data.consistent_data import ALL_BETS
 
 router = APIRouter()
 
+# Path to the TypeScript dashboard service
+BACKEND_DIR = PathLib(__file__).parent.parent
+TS_DASHBOARD = BACKEND_DIR / "src" / "services" / "snowflake" / "dashboard.ts"
+
+
+def call_typescript_dashboard(function_name: str, *args):
+    """
+    Call TypeScript dashboard functions via ts-node
+    """
+    script_content = f"""
+import {{ {function_name} }} from './src/services/snowflake/dashboard';
+import {{ initSnowflake }} from './src/database/snowflake';
+
+async function run() {{
+  try {{
+    await initSnowflake();
+    const result = await {function_name}({', '.join(map(str, args))});
+    console.log(JSON.stringify(result));
+  }} catch (error) {{
+    console.error(JSON.stringify({{ error: str(error) }}));
+    process.exit(1);
+  }}
+}}
+
+run();
+"""
+    
+    try:
+        result = subprocess.run(
+            ["npx", "ts-node", "-e", script_content],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            cwd=str(BACKEND_DIR)
+        )
+        if result.returncode == 0:
+            return json.loads(result.stdout)
+        else:
+            return []
+    except Exception as e:
+        print(f"Error calling TypeScript dashboard: {e}")
+        return []
+
 
 @router.get("/proposals", response_model=ProposalsResponse)
 async def get_proposals(
     status: Optional[str] = Query(None, description="Filter by status"),
-    limit: int = Query(50, ge=1, le=100)
+    limit: int = Query(50, ge=1, le=100),
+    use_real_data: bool = Query(True, description="Use real decisions from Snowflake")
 ):
     """
     Get all governance proposals.
-    Uses Polymarket-style bets from consistent_data.py
+    If use_real_data=True, fetches from Snowflake decisions.
+    Otherwise, uses mock data from consistent_data.py
     """
-    # Convert ALL_BETS to proposal format
     proposals = []
-    for bet in ALL_BETS:
-        proposal = {
-            "id": bet["id"],
-            "market": bet["betDescription"],  # Use betDescription as market (Polymarket bet)
-            "direction": "LONG" if bet["vote"] == "YES" else "SHORT",  # Keep for compatibility
-            "positionSize": bet["positionSize"],
-            "riskScore": bet["riskScore"],
-            "confidence": bet["confidence"],
-            "status": bet["status"],
-            "summary": bet["betDescription"],  # Use betDescription as summary
-            "timestamp": bet["timestamp"],
-            "dataSources": [f"https://polymarket.com/bet/{bet['id']}"],
-            "betStatus": bet["betStatus"],
-            "betResult": bet["betResult"],
-            "closedAt": bet.get("closedAt"),
-            "vote": bet["vote"]  # YES or NO
-        }
-        proposals.append(proposal)
+    
+    if use_real_data:
+        # Fetch real decisions from Snowflake
+        try:
+            decisions = call_typescript_dashboard("getLatestDecisions", limit * 2)  # Get more to filter
+            
+            for decision in decisions:
+                # Extract agent outputs
+                agent_outputs = decision.get("agent_outputs", [])
+                if isinstance(agent_outputs, str):
+                    try:
+                        agent_outputs = json.loads(agent_outputs)
+                    except:
+                        agent_outputs = []
+                
+                # Calculate average confidence
+                if agent_outputs:
+                    total_confidence = sum(
+                        agent.get("decision", {}).get("confidence", 0) 
+                        for agent in agent_outputs
+                    )
+                    avg_confidence = total_confidence / len(agent_outputs) if agent_outputs else 0
+                else:
+                    avg_confidence = 0
+                
+                # Determine status
+                direction = decision.get("final_direction", "NO")
+                decision_status = "APPROVED" if direction == "YES" else "REJECTED"
+                
+                # Extract market data
+                market_data = decision.get("raw_market_data", {})
+                if isinstance(market_data, str):
+                    try:
+                        market_data = json.loads(market_data)
+                    except:
+                        market_data = {}
+                
+                proposal = {
+                    "id": decision.get("id", ""),
+                    "market": decision.get("market_question", decision.get("market_id", "Unknown Market")),
+                    "direction": "LONG" if direction == "YES" else "SHORT",
+                    "positionSize": f"${decision.get('final_size', 0):,.0f}",
+                    "riskScore": 5.0,  # Could be calculated from agent outputs
+                    "confidence": int(avg_confidence),
+                    "status": decision_status,
+                    "summary": decision.get("consensus_reasoning", "")[:200] + "..." if len(decision.get("consensus_reasoning", "")) > 200 else decision.get("consensus_reasoning", ""),
+                    "timestamp": decision.get("created_at", datetime.now().isoformat()),
+                    "dataSources": [f"https://polymarket.com/event/{decision.get('market_id', '')}"],
+                    "betStatus": "OPEN",
+                    "betResult": None,
+                    "closedAt": None,
+                    "vote": direction
+                }
+                proposals.append(proposal)
+        except Exception as e:
+            print(f"Error fetching real decisions: {e}, falling back to mock data")
+            use_real_data = False
+    
+    # Fallback to mock data if real data fetch failed or use_real_data=False
+    if not use_real_data or not proposals:
+        for bet in ALL_BETS:
+            proposal = {
+                "id": bet["id"],
+                "market": bet["betDescription"],
+                "direction": "LONG" if bet["vote"] == "YES" else "SHORT",
+                "positionSize": bet["positionSize"],
+                "riskScore": bet["riskScore"],
+                "confidence": bet["confidence"],
+                "status": bet["status"],
+                "summary": bet["betDescription"],
+                "timestamp": bet["timestamp"],
+                "dataSources": [f"https://polymarket.com/bet/{bet['id']}"],
+                "betStatus": bet["betStatus"],
+                "betResult": bet["betResult"],
+                "closedAt": bet.get("closedAt"),
+                "vote": bet["vote"]
+            }
+            proposals.append(proposal)
     
     if status:
         proposals = [p for p in proposals if p["status"] == status.upper()]

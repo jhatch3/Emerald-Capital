@@ -14,50 +14,49 @@ router = APIRouter()
 @router.get("", response_model=AgentsResponse)
 async def get_agents():
     """
-    Get all agent personas.
+    Get all agent personas from the TypeScript agent engine.
+    Returns the 5 specialized trading agents with their real personas.
     """
-    # TODO: Replace with real database query or static config
-    
     return [
         {
-            "id": "quant-analyst",
-            "name": "Quant Analyst",
-            "role": "Technical Analysis & Indicators",
+            "id": "fundamental-agent",
+            "name": "Fundamental Agent",
+            "role": "Fundamental Analysis & Events",
+            "avatar": "📈",
+            "description": "Specializes in logical, factual, and event-based reasoning. Analyzes fundamentals, news events, partnerships, protocol upgrades, and ecosystem developments. Focuses on tokenomics, supply dynamics, user growth, transaction volume, and developer activity. Bases decisions on factual information and logical analysis, ignoring short-term price movements.",
+            "specialty": "Fundamental Analysis"
+        },
+        {
+            "id": "quant-agent",
+            "name": "Quant Agent",
+            "role": "Quantitative Analysis & Statistics",
             "avatar": "📊",
-            "description": "Analyzes price action, volume profiles, and technical indicators...",
-            "specialty": "Technical Analysis"
+            "description": "Specializes in probability, statistics, and numerical analysis. Uses ONLY numerical data: prices, volumes, returns, volatility, correlations. Applies statistical models like mean reversion, momentum, and volatility clustering. Calculates probabilities and expected values. Uses technical indicators (RSI, MACD, Bollinger Bands) and analyzes volume profiles and market microstructure.",
+            "specialty": "Quantitative Analysis"
         },
         {
-            "id": "risk-manager",
-            "name": "Risk Manager",
-            "role": "Portfolio Risk & Exposure",
-            "avatar": "🛡️",
-            "description": "Monitors portfolio heat, correlation risk, and maximum drawdown...",
-            "specialty": "Risk Management"
-        },
-        {
-            "id": "market-maker",
-            "name": "Market Maker",
-            "role": "Liquidity & Order Flow",
-            "avatar": "💧",
-            "description": "Tracks order book depth, spread dynamics, and liquidity conditions...",
-            "specialty": "Market Microstructure"
-        },
-        {
-            "id": "news-analyst",
-            "name": "News Analyst",
-            "role": "Sentiment & Events",
+            "id": "sentiment-agent",
+            "name": "Sentiment Agent",
+            "role": "Social Media & Narrative Analysis",
             "avatar": "📰",
-            "description": "Monitors social sentiment, news catalysts, and upcoming events...",
+            "description": "Specializes in social media narrative, momentum, and trend-driven analysis. Analyzes Twitter, Reddit, and Discord sentiment. Tracks narrative shifts, hype cycles, and momentum patterns. Monitors influencer activity, community engagement, and viral potential. Considers market psychology, FOMO/FUD dynamics, and contrarian signals when sentiment is extreme.",
             "specialty": "Sentiment Analysis"
         },
         {
-            "id": "arbitrage-analyst",
-            "name": "Arbitrage Analyst",
-            "role": "Cross-Market Opportunities",
+            "id": "risk-agent",
+            "name": "Risk Agent",
+            "role": "Risk Management & Portfolio Protection",
+            "avatar": "🛡️",
+            "description": "Conservative, tail-risk-aware agent that prioritizes capital preservation over returns. Limits position sizes to manage portfolio heat. Evaluates correlation with existing positions, sets maximum drawdown limits, and uses conservative position sizing (typically 5-15% of portfolio per position). Rejects high-risk opportunities even if profitable. Considers liquidity, slippage risks, and worst-case scenarios.",
+            "specialty": "Risk Management"
+        },
+        {
+            "id": "strategist-agent",
+            "name": "Strategist Agent",
+            "role": "Market Structure & Strategy",
             "avatar": "⚡",
-            "description": "Identifies pricing inefficiencies across venues and derivatives...",
-            "specialty": "Statistical Arbitrage"
+            "description": "Specializes in market structure, incentives, and inefficiencies. Analyzes market mechanics, identifies arbitrage opportunities, and considers incentive structures and game theory. Evaluates market maker behavior, order flow, funding rates, basis, and derivatives pricing. Identifies market manipulation patterns and strategic positioning opportunities.",
+            "specialty": "Market Strategy"
         },
     ]
 
@@ -66,11 +65,79 @@ async def get_agents():
 async def get_debate_transcript(proposal_id: str = Path(..., description="Proposal ID")):
     """
     Get full debate transcript for a specific proposal.
-    Returns the complete conversation between all agents.
-    Matches the outcome of the proposal (APPROVED/REJECTED).
+    Returns the complete conversation between all agents from Snowflake.
     """
-    # TODO: Replace with real database query
-    # Example: SELECT * FROM debate_messages WHERE proposal_id = proposal_id ORDER BY timestamp
+    # Try to fetch from Snowflake first
+    try:
+        import subprocess
+        import json
+        from pathlib import Path as PathLib
+        
+        BACKEND_DIR = PathLib(__file__).parent.parent
+        script_content = f"""
+import {{ getLatestDecisions }} from './src/services/snowflake/dashboard';
+import {{ initSnowflake }} from './src/database/snowflake';
+
+async function run() {{
+  try {{
+    await initSnowflake();
+    const decisions = await getLatestDecisions(100);
+    const decision = decisions.find(d => d.id === '{proposal_id}');
+    if (decision) {{
+      const logs = decision.conversation_logs || {{}};
+      const initial = logs.initial_decisions || [];
+      const final = logs.final_decisions || [];
+      
+      // Convert agent outputs to debate messages
+      const messages = [];
+      
+      // Initial decisions
+      for (const agent of initial) {{
+        messages.push({{
+          agent: agent.agent || 'Unknown',
+          message: agent.decision?.reasoning || '',
+          timestamp: new Date().toLocaleTimeString(),
+          vote: agent.decision?.direction || 'NO'
+        }});
+      }}
+      
+      // Final decisions (after debate)
+      for (const agent of final) {{
+        messages.push({{
+          agent: agent.agent || 'Unknown',
+          message: agent.decision?.reasoning || '',
+          timestamp: new Date().toLocaleTimeString(),
+          vote: agent.decision?.direction || 'NO'
+        }});
+      }}
+      
+      console.log(JSON.stringify({{ proposalId: '{proposal_id}', messages }}));
+    }} else {{
+      console.log(JSON.stringify({{ proposalId: '{proposal_id}', messages: [] }}));
+    }}
+  }} catch (error) {{
+    console.error(JSON.stringify({{ error: String(error) }}));
+    process.exit(1);
+  }}
+}}
+
+run();
+"""
+        result = subprocess.run(
+            ["npx", "ts-node", "-e", script_content],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            cwd=str(BACKEND_DIR)
+        )
+        if result.returncode == 0:
+            transcript = json.loads(result.stdout)
+            if transcript.get("messages"):
+                return transcript
+    except Exception as e:
+        print(f"Error fetching debate from Snowflake: {e}")
+    
+    # Fallback to mock data
     
     # Return different debates based on proposal ID to match governance outcomes
     if proposal_id == "prop-001":

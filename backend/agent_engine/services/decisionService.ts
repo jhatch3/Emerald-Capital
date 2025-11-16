@@ -44,6 +44,19 @@ export interface EnhancedDecisionResponse {
 }
 
 /**
+ * Helper to log to stderr when running as subprocess (so stdout only has JSON)
+ */
+const logToStderr = (...args: any[]) => {
+  if (process.stdin.isTTY === false) {
+    // Running as subprocess - log to stderr
+    console.error(...args);
+  } else {
+    // Running interactively - log normally
+    console.log(...args);
+  }
+};
+
+/**
  * Main decision service function
  * Can be called from Python or used as a standalone service
  */
@@ -168,15 +181,15 @@ export async function processDecision(
       };
 
       await storeDecision(record);
-      console.log(`[DecisionService] Decision stored in Snowflake: ${record.decision_id}`);
+      logToStderr(`[DecisionService] Decision stored in Snowflake: ${record.decision_id}`);
     } catch (snowflakeError) {
-      console.error('[DecisionService] Error storing in Snowflake (non-fatal):', snowflakeError);
+      logToStderr('[DecisionService] Error storing in Snowflake (non-fatal):', snowflakeError);
       // Continue even if Snowflake storage fails
     }
 
     return response;
   } catch (error) {
-    console.error('[DecisionService] Error processing decision:', error);
+    logToStderr('[DecisionService] Error processing decision:', error);
     return {
       status: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -255,11 +268,12 @@ if (typeof require !== 'undefined' && require.main === module) {
       // If market/data not provided, auto-select from Polymarket
       if (!request.market || !request.data || 
           (request.market && Object.keys(request.market).length === 0)) {
-        console.log('[DecisionService] No market provided, running market selection...');
+        logToStderr('[DecisionService] No market provided, running market selection...');
         const selected = await selectAndEnrichBestMarket();
         
         if (!selected) {
-          console.error(JSON.stringify({
+          // Output error as JSON to stdout
+          console.log(JSON.stringify({
             status: 'error',
             error: 'Market selection failed: No suitable markets found',
           }));
@@ -269,17 +283,19 @@ if (typeof require !== 'undefined' && require.main === module) {
 
         market = selected.market;
         data = selected.data;
-        console.log(`[DecisionService] Selected market: ${selected.enriched.question.substring(0, 60)}...`);
+        logToStderr(`[DecisionService] Selected market: ${selected.enriched.question.substring(0, 60)}...`);
         const result = await processDecision(market, data, {
           enriched: selected.enriched,
           selected: selected.selected,
         });
-        console.log(JSON.stringify(result, null, 2));
+        // Output only JSON to stdout (no pretty printing to avoid extra newlines)
+        console.log(JSON.stringify(result));
       } else {
         market = request.market;
         data = request.data;
         const result = await processDecision(market, data);
-        console.log(JSON.stringify(result, null, 2));
+        // Output only JSON to stdout
+        console.log(JSON.stringify(result));
       }
       process.exit(0);
     } catch (error) {
@@ -310,11 +326,12 @@ if (process.stdin.isTTY === false) {
       // If market/data not provided, auto-select from Polymarket
       if (!request.market || !request.data || 
           (request.market && Object.keys(request.market).length === 0)) {
-        console.log('[DecisionService] No market provided, running market selection...');
+        logToStderr('[DecisionService] No market provided, running market selection...');
         const selected = await selectAndEnrichBestMarket();
         
         if (!selected) {
-          console.error(JSON.stringify({
+          // Output error as JSON to stdout (for API response)
+          console.log(JSON.stringify({
             status: 'error',
             error: 'Market selection failed: No suitable markets found',
           }));
@@ -324,21 +341,24 @@ if (process.stdin.isTTY === false) {
 
         market = selected.market;
         data = selected.data;
-        console.log(`[DecisionService] Selected market: ${selected.enriched.question.substring(0, 60)}...`);
+        logToStderr(`[DecisionService] Selected market: ${selected.enriched.question.substring(0, 60)}...`);
         const result = await processDecision(market, data, {
           enriched: selected.enriched,
           selected: selected.selected,
         });
-        console.log(JSON.stringify(result, null, 2));
+        // Output only JSON to stdout
+        console.log(JSON.stringify(result));
       } else {
         market = request.market;
         data = request.data;
         const result = await processDecision(market, data);
-        console.log(JSON.stringify(result, null, 2));
+        // Output only JSON to stdout
+        console.log(JSON.stringify(result));
       }
       process.exit(0);
     } catch (error) {
-      console.error(JSON.stringify({
+      // Output error as JSON to stdout
+      console.log(JSON.stringify({
         status: 'error',
         error: error instanceof Error ? error.message : 'Unknown error',
       }));
