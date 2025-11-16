@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Evergreen Tree Icon - Bright Green Theme -->
+  
+  <!-- Tree trunk -->
+  <rect x="42" y="72" width="16" height="23" fill="#8B4513" rx="2"/>
+  
+  <!-- Tree layers - bottom to top with brighter greens -->
+  <!-- Bottom layer (largest) -->
+  <path d="M 12 72 Q 50 45 88 72 Q 50 40 12 72" fill="#2D7A2D"/>
+  <path d="M 18 68 Q 50 42 82 68 Q 50 38 18 68" fill="#3A9B3A"/>
+  
+  <!-- Middle layer -->
+  <path d="M 22 58 Q 50 32 78 58 Q 50 28 22 58" fill="#2D7A2D"/>
+  <path d="M 26 54 Q 50 30 74 54 Q 50 26 26 54" fill="#4AB84A"/>
+  
+  <!-- Upper layer -->
+  <path d="M 30 44 Q 50 22 70 44 Q 50 20 30 44" fill="#3A9B3A"/>
+  <path d="M 33 41 Q 50 20 67 41 Q 50 18 33 41" fill="#4AB84A"/>
+  
+  <!-- Top layer -->
+  <path d="M 38 32 Q 50 15 62 32 Q 50 13 38 32" fill="#3A9B3A"/>
+  <path d="M 40 30 Q 50 13 60 30 Q 50 11 40 30" fill="#5AC85A"/>
+  
+  <!-- Top point -->
+  <path d="M 46 20 Q 50 8 54 20 Q 50 6 46 20" fill="#4AB84A"/>
+</svg>
