@@ -5,8 +5,6 @@ The First Fully Autonomous AI-Driven Hedge Fund on Solana
 Evergreen Capital isn’t just a hackathon project — it’s a prototype for the next generation of decentralized, AI-managed hedge funds.
 Built in 24 hours. 
 
-<details>
-    <summary><strong>📸 View Evergreen Screenshots</strong></summary>
 
   <p align="center">
     <img src="assets/1.png" width="80%" />
@@ -20,7 +18,6 @@ Built in 24 hours.
     <img src="assets/5.png" width="80%" />
   </p>
 
-</details>
 
 🚀 Inspiration
 
